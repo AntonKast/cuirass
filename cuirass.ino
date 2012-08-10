@@ -14,24 +14,11 @@ int numPixels = 210;
 
 Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
-void setup() {    
-    strip.begin();
-    strip.show();
-    for (int i = 0; i <= n_gamut; i++) {
-        planck_gamut[i] = planck_spectrum.at(i / (float) n_gamut);
-    }
-    for (int i = 0; i <= n_gamut; i++) {
-        green_gamut[i] = green_spectrum.at(i / (float) n_gamut);
-    }
-}
-
-void loop() {
-    effectCrazyColors();
-}
-
 //
 // gamut-related stuff: move all but globals into Spectrum
 //
+
+#define n_gamut 100
 
 void rotate(uint32_t (*next)(uint32_t)) {
     for (int i = 0; i < strip.numPixels(); i++) {
@@ -68,8 +55,6 @@ Spectrum green_spectrum = Spectrum(green_shades, 4);
 
 Spectrum planck_spectrum = Spectrum(planck_colors, 9);
 
-#define n_gamut 100
-
 uint32_t planck_gamut[n_gamut + 1];
 
 uint32_t green_gamut[n_gamut + 1];
@@ -101,6 +86,21 @@ uint32_t green_prev(uint32_t c) {
 //
 // END gamut-related stuff
 //
+
+void setup() {    
+    strip.begin();
+    strip.show();
+    for (int i = 0; i <= n_gamut; i++) {
+        planck_gamut[i] = planck_spectrum.at(i / (float) n_gamut);
+    }
+    for (int i = 0; i <= n_gamut; i++) {
+        green_gamut[i] = green_spectrum.at(i / (float) n_gamut);
+    }
+}
+
+void loop() {
+    effectCrazyColors();
+}
 
 byte fearText[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -410,10 +410,10 @@ void effectRainbowCycle() {
 }
 
 void effectCrazyColors() {
-    uint32_t old = strip.getPixel(0);
-    uint32_t new = ranxel();
+    uint32_t co = strip.getPixelColor(0);
+    uint32_t cn = ranxel();
     for (int i = 0; i < 15; i++) {
-        solid(interpolate(old, new, i / 15.));
+        solid(interpolate(co, cn, i / 15.));
         strip.show();
     }
 }
