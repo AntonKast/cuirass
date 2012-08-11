@@ -115,7 +115,7 @@ void rightSetPixels(int pairs[][2], int n_pixels, uint32_t c) {
     }
 }
 
-int ringPairs[][2] = {
+int ringPairs[16][2] = {
     {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {1, 6}, {2, 6},
     {5, 5}, {6, 4}, {6, 3}, {6, 2}, {5, 1}, {2, 0}, {1, 0}
 };

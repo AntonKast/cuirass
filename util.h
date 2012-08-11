@@ -23,7 +23,7 @@ int leftLogicToIndex(int x, int y);
 int rightLogicToIndex(int x, int y);
 void leftSetPixels(int pairs[][2], int n_pixels, uint32_t c);
 void rightSetPixels(int pairs[][2], int n_pixels, uint32_t c);
-//    int ringPairs[][2] =;
+extern int ringPairs[16][2];
 //    int topRowPairs0[][2] = {{0, 0}, {1, 0}, {2, 0}};
 //    int topRowPairs1[][2] = {{0, 1}, {1, 1}, {2, 1}, {3, 1}, {4, 1}, {5, 1}};
 //    int topRowPairs2[][2] = {{0, 2}, {1, 2}, {2, 2}, {3, 2}, {4, 2}, {5, 2}, {6, 2}};

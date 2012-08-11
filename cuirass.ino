@@ -64,8 +64,30 @@ void setup() {
 }
 
 void loop() {
-    gradient(rainbowSpectrum);
-    strip.show();
+//    effectFireworks();
+//    effectSignature();
+    effectRainbowFrame();
+//    effectCrawlText();
+//    effectBlinkText();
+//    effectFire();
+//    effectMatrix();
+//    effectMatrixFire();
+//    effectRedWhiteBlue();
+//    effectRanxels();
+//    effectSwipeFadingPlanckRanxels();
+//    effectFadingPlanckPixels();
+//    effectMouth();
+//    effectSeizure();
+//    effectBlink();
+//    effectChecker();
+//    effectFlare();
+//    effectFadingRanxels();
+//    effectFlicker();
+//    effectPlanckFlash();
+//    effectFlash();
+//    effectRainbow();
+//    effectRainbowCycle();
+//    effectCrazyColors();
 }
 
 // effects
@@ -144,6 +166,12 @@ void effectRainbowFrame() {
     for (int y = 10; y > 2; y--) {
         setPixel(0, y, gamut[n++]);
     }
+    n = 0;
+    for (int i = 0; i < 16; i++) {
+        int *pair = ringPairs[i];
+        setPixel(leftLogicToIndex(pair[0], pair[1]), gamut[n++]);
+        setPixel(rightLogicToIndex(pair[0], pair[1]), gamut[n++]);
+    }
     for (int i = 0; i < 1000; i++) {
 
         for (int x = 0; x < 12; x++) {
@@ -157,6 +185,11 @@ void effectRainbowFrame() {
         }
         for (int y = 10; y > 2; y--) {
             rotate(rainbowSpectrum, midLogicToIndex(0, y), true);
+        }
+        for (int i = 0; i < 16; i++) {
+            int *pair = ringPairs[i];
+            rotate(rainbowSpectrum, leftLogicToIndex(pair[0], pair[1]), true);
+            rotate(rainbowSpectrum, rightLogicToIndex(pair[0], pair[1]), true);
         }
         strip.show();
     }
