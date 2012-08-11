@@ -15,17 +15,20 @@ int numPixels = 210;
 
 Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
-// initializer spectra
+// spectra initializers
 
 uint32_t planckColors[] = {
     black,
     interpolate(black, red, .1),
     interpolate(black, red, .2),
     interpolate(black, red, .5),
-    orange,
-    cyan,
+    interpolate(green, red, 5 / 6.), // magenta
+    interpolate(red, green, .5),     // yellow
+    0x00ffffff,                      // white
     termColor
 };
+Spectrum planckSpectrum = Spectrum(planckColors, 100);
+Spectrum planckSpectrumShort = Spectrum(planckColors, 40);
 
 uint32_t greenShades[] = {
     black,
@@ -34,14 +37,16 @@ uint32_t greenShades[] = {
     green,
     termColor
 };
+Spectrum greenSpectrum = Spectrum(greenShades, 10);
 
-uint32_t orangeShades[] = {
+uint32_t magentaShades[] = {
     black,
-    interpolate(black, orange, .02),
-    interpolate(black, orange, .1),
-    orange,
+    interpolate(black, interpolate(blue, red, 5 / 6.), .02),
+    interpolate(black, interpolate(blue, red, 5 / 6.), .1),
+    interpolate(blue, red, 5 / 6.), // magenta
     termColor
 };
+Spectrum magentaSpectrum = Spectrum(magentaShades, 0);
 
 uint32_t rainbowColors[] = {
     red,
@@ -50,10 +55,6 @@ uint32_t rainbowColors[] = {
     interpolate(blue, red, .99),
     termColor
 };
-
-Spectrum planckSpectrum = Spectrum(planckColors, 100);
-Spectrum greenSpectrum = Spectrum(greenShades, 10);
-Spectrum orangeSpectrum = Spectrum(orangeShades, 0);
 Spectrum rainbowSpectrum = Spectrum(rainbowColors, 40);
 
 // main loop
@@ -63,17 +64,37 @@ void setup() {
     strip.show();
 }
 
+void repeat(void f(), int n) {
+    int div = 1;    // cycle faster in development
+    for (int i = 0; i < n / div; i++) {
+        f();
+    }
+    for (int i = 0; i < 100; i++) {
+        dimFloat(.95);
+        strip.show();
+    }
+}
+
 void loop() {
-//    effectFireworks();
-//    effectSignature();
-    effectRainbowFrame();
-//    effectCrawlText();
+
+    repeat(effectRainbow, 15);        // 2 minutes
+    repeat(effectCrazyColors, 480);   // 2 minutes
+    repeat(effectMatrix, 8000);       // 10 minutes
+    repeat(effectRedWhiteBlue, 3000); // 2 minutes
+    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
+    repeat(effectFireworks, 900);     // 2 minutes
+    repeat(effectRanxels, 30);        // 2 minutes
+
+//    repeat(effectFire, 10000);
+
+//    repeat(effectCrawlText, 10); // broken
+
+//    effectIrisLolaText();     // for production?
+//    effectSignature();        // for production?
+
+//    effectRainbowFrame();
+//    effectFadingPlanckPixels();
 //    effectBlinkText();
-//    effectFire();
-//    effectMatrix();
-//    effectMatrixFire();
-//    effectRedWhiteBlue();
-//    effectRanxels();
 //    effectSwipeFadingPlanckRanxels();
 //    effectFadingPlanckPixels();
 //    effectMouth();
@@ -85,24 +106,69 @@ void loop() {
 //    effectFlicker();
 //    effectPlanckFlash();
 //    effectFlash();
-//    effectRainbow();
-//    effectRainbowCycle();
-//    effectCrazyColors();
 }
 
 // effects
 
-void effectFireworks() {
-    if (isTimeout()) {
-        uint32_t *gamut = planckSpectrum.gamut();
-        int nGamut = planckSpectrum.nGamut();
-        top(gamut[nGamut - 2]);
-        // start down-shifting sparks at mid
-        uint16_t t = (uint16_t) exponential(3000.);
-        setTimeout(t);
+void effectPolkaDots() {
+    int nReps = 10;
+
+    uint32_t back, front;
+
+    back = interpolate(black, red, .25);
+    front = white;
+    for (int n = 0; n < 16; n++) {
+        fadeTowards(back, .1);
+        strip.show();
     }
-    rotate(planckSpectrum, false);
+    for (int n = 0; n < nReps; n++) {
+        polkaDotsLoop(back, front);
+    }
+
+    back = interpolate(black, blue, .25);
+    front = green;
+    for (int n = 0; n < 16; n++) {
+        fadeTowards(back, .1);
+        strip.show();
+    }
+    for (int n = 0; n < nReps; n++) {
+        polkaDotsLoop(back, front);
+    }
+
+    back = interpolate(black, yellow, .25);
+    front = red;
+    for (int n = 0; n < 16; n++) {
+        fadeTowards(back, .1);
+        strip.show();
+    }
+    for (int n = 0; n < nReps; n++) {
+        polkaDotsLoop(back, front);
+    }
+}
+
+void polkaDotsLoop(uint32_t back, uint32_t front) {
+    solid(back);
     strip.show();
+
+    int nPts = 30;
+    uint32_t pts[nPts];
+    for (int i = 0; i < nPts; i++) {
+        pts[i] = random(numPixels);
+    }
+    int nSteps = 32;
+    for (int n = 0; n < nSteps; n++) {
+        for (int i = 0; i < nPts; i++) {
+            setPixel(pts[i], interpolate(back, front, n / (float) nSteps));
+        }
+        strip.show();
+    }
+    delay(400);
+    for (int n = nSteps - 1; n >= 0; n--) {
+        for (int i = 0; i < nPts; i++) {
+            setPixel(pts[i], interpolate(back, front, n / (float) nSteps));
+        }
+        strip.show();
+    }
 }
 
 void effectSignature() {
@@ -190,6 +256,55 @@ void effectRainbowFrame() {
             int *pair = ringPairs[i];
             rotate(rainbowSpectrum, leftLogicToIndex(pair[0], pair[1]), true);
             rotate(rainbowSpectrum, rightLogicToIndex(pair[0], pair[1]), true);
+        }
+        strip.show();
+    }
+}
+
+void effectIrisLolaText() {
+    solid(black);
+    for (int n = 0; n <= 64; n++) {
+        uint32_t c = interpolate(black, white, n / 64.);
+        for (int x = 0; x < 12; x++) {
+            for (int y = 3; y < 10; y++) {
+                if (irisText[12 * (9 - y) + x] > 0) {
+                    setPixel(x, y, c);
+                }
+            }
+        }
+        strip.show();
+    }
+    for (int n = 64; n >= 0; n--) {
+        uint32_t c = interpolate(black, white, n / 64.);
+        for (int x = 0; x < 12; x++) {
+            for (int y = 3; y < 10; y++) {
+                if (irisText[12 * (9 - y) + x] > 0) {
+                    setPixel(x, y, c);
+                }
+            }
+        }
+        strip.show();
+    }
+    solid(black);
+    for (int n = 0; n <= 64; n++) {
+        uint32_t c = interpolate(black, white, n / 64.);
+        for (int x = 0; x < 12; x++) {
+            for (int y = 3; y < 10; y++) {
+                if (lolaText[12 * (9 - y) + x] > 0) {
+                    setPixel(x, y, c);
+                }
+            }
+        }
+        strip.show();
+    }
+    for (int n = 64; n >= 0; n--) {
+        uint32_t c = interpolate(black, white, n / 64.);
+        for (int x = 0; x < 12; x++) {
+            for (int y = 3; y < 10; y++) {
+                if (lolaText[12 * (9 - y) + x] > 0) {
+                    setPixel(x, y, c);
+                }
+            }
         }
         strip.show();
     }
@@ -287,33 +402,41 @@ void effectMatrix() {
     delay(50);
 }
 
-void effectMatrixFire() {
-    int nGamut = planckSpectrum.nGamut();
-    uint32_t c1 = planckSpectrum.gamut()[nGamut - 1];
-    uint32_t c2 = planckSpectrum.gamut()[nGamut - 2];
-    for (int x = 0; x < 12; x++) {
-        if (random(20) == 0) {
-            setPixel(x, 11, c1);
-        }
-    }
+void effectFireworks() {
+    int nGamut = planckSpectrumShort.nGamut();
+    uint32_t *gamut = planckSpectrumShort.gamut();
+
+    uint32_t first = gamut[nGamut - 1];
+    uint32_t second = gamut[nGamut - 2];
     for (int x = 0; x < 12; x++) {
         for (int y = 11; y > 0; y--) {
             int i = midLogicToIndex(x, y);
             uint32_t c = getPixel(i);
-            if (c == c2) {
-                setPixel(x, y - 1, c1);
+            if (c == second) {
+                setPixel(x, y - 1, first);
             }
         }
     }
+    if (isTimeout()) {
+        nGamut = planckSpectrum.nGamut();
+        gamut = planckSpectrum.gamut();
+        top(gamut[nGamut - 1]);
+
+        nGamut = planckSpectrumShort.nGamut();
+        gamut = planckSpectrumShort.gamut();
+        uint32_t c = gamut[nGamut - 1];
+        for (int x = 0; x < 12; x++) {
+            setPixel(x, 11, c);
+        }
+        uint16_t t = (uint16_t) exponential(5000.);
+        setTimeout(t);
+    }
     strip.show();
-    rotate(planckSpectrum, false);
-    delay(100);
+    rotateMid(planckSpectrumShort, false);
+    rotateTop(planckSpectrum, false);
 }
 
 void effectRedWhiteBlue() {
-//    left(blue);
-//    right(blue);
-
     int il = random(LEFT_END - LEFT_START + 1) + LEFT_START;
     int ir = random(RIGHT_END - RIGHT_START + 1) + RIGHT_START;
     strip.setPixelColor(il, white);
@@ -350,14 +473,15 @@ void effectRedWhiteBlue() {
 }
 
 void effectRanxels() {
-    for (int i = 0; i < 8; i++) {
-        ranxels(orangeSpectrum);
-        top(orangeSpectrum.at(i / 8.));
+    int nSteps = 16;
+    for (int i = 0; i < nSteps; i++) {
+        ranxels(magentaSpectrum);
+        top(magentaSpectrum.at(i / (float) nSteps));
         strip.show();
     }
-    for (int i = 7; i >= 0; i--) {
-        ranxels(orangeSpectrum);
-        top(orangeSpectrum.at(i / 8.));
+    for (int i = nSteps - 1; i >= 0; i--) {
+        ranxels(magentaSpectrum);
+        top(magentaSpectrum.at(i / (float) nSteps));
         strip.show();
     }
 }
@@ -394,12 +518,13 @@ void effectSwipeFadingPlanckRanxels() {
 
 void effectFadingPlanckPixels() {
     int nGamut = planckSpectrum.nGamut();
+    uint32_t *gamut = planckSpectrum.gamut();
     solid(black);
     for (int n = 0; n < 10; n++) {
-        setPixel(random(210), planckSpectrum.gamut()[nGamut - 1]);
+        setPixel(random(210), gamut[nGamut - 1]);
     }
     strip.show();
-    for (int n = 0; n < 100; n++) {
+    for (int n = 0; n < nGamut; n++) {
         rotate(planckSpectrum, false);
         strip.show();
     }
@@ -505,24 +630,11 @@ void effectFlash() {
 }
 
 void effectRainbow() {
-    for (int j = 0; j < 256; j++) {     // 3 cycles of all 256 colors in the wheel
+    for (int j = 0; j < 256; j++) {
         for (int i = 0; i < strip.numPixels(); i++) {
-            strip.setPixelColor(i, wheel( (i + j) % 255));
+            strip.setPixelColor(i, wheel((i + j) % 255));
         }
-        strip.show();   // write all the pixels out
-    }
-}
-
-void effectRainbowCycle() {
-    for (int j=0; j < 256 * 5; j++) {     // 5 cycles of all 25 colors in the wheel
-        for (int i=0; i < strip.numPixels(); i++) {
-            // tricky math! we use each pixel as a fraction of the full 96-color wheel
-            // (thats the i / strip.numPixels() part)
-            // Then add in j which makes the colors go around per pixel
-            // the % 96 is to make the wheel cycle around
-            strip.setPixelColor(i, wheel( ((i * 256 / strip.numPixels()) + j) % 256) );
-        }  
-        strip.show();   // write all the pixels out
+        strip.show();
     }
 }
 

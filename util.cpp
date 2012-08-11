@@ -242,6 +242,14 @@ void topDim(float f) {
     }
 }
 
+void fadeTowards(uint32_t t, float f) {
+    for (int r = 0; r < strip.numPixels(); r++) {
+        uint32_t c = strip.getPixelColor(r);
+        c = interpolate(c, t, f);
+        strip.setPixelColor(r, c);
+    }
+}
+
 void midDim() {
     for (int r = MID_START; r <= MID_END; r++) {
         uint32_t c = strip.getPixelColor(r);
@@ -438,6 +446,18 @@ void rotate(Spectrum &s, int i, bool wrap) {
 
 void rotate(Spectrum &s, bool wrap) {
     for (int i = 0; i < strip.numPixels(); i++) {
+        rotate(s, i, wrap);
+    }
+}
+
+void rotateMid(Spectrum &s, bool wrap) {
+    for (int i = 0; i <= MID_END; i++) {
+        rotate(s, i, wrap);
+    }
+}
+
+void rotateTop(Spectrum &s, bool wrap) {
+    for (int i = LEFT_START; i <= RIGHT_END; i++) {
         rotate(s, i, wrap);
     }
 }
