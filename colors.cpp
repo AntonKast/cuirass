@@ -1,3 +1,5 @@
+#include <avr/pgmspace.h>
+
 #include "colors.h"
 
 uint32_t white  = gray(255);
@@ -25,13 +27,7 @@ bool isTermColor(uint32_t c) {
 }
 
 uint32_t color(byte r, byte g, byte b) {
-//    return ((((uint32_t) r << 8) | g) << 8) | b;
-    uint32_t c = r;
-    c <<= 8;
-    c |= g;
-    c <<= 8;
-    c |= b;
-    return c;
+    return ((((uint32_t) r << 8) | g) << 8) | b;
 }
 
 uint32_t gray(byte g) {
@@ -39,19 +35,12 @@ uint32_t gray(byte g) {
 }
 
 uint32_t interpolate(uint32_t c1, uint32_t c2, float w) {
-//    int r1 = c1 >> 16 & 0xFF;
-//    int g1 = c1 >>  8 & 0xFF;
-//    int b1 = c1 >>  0 & 0xFF;
-//    int r2 = c2 >> 16 & 0xFF;
-//    int g2 = c2 >>  8 & 0xFF;
-//    int b2 = c2 >>  0 & 0xFF;
-
-    int r1 = (c1 & 0x00FF0000) >> 16;
-    int g1 = (c1 & 0x0000FF00) >>  8;
-    int b1 = (c1 & 0x000000FF) >>  0;
-    int r2 = (c2 & 0x00FF0000) >> 16;
-    int g2 = (c2 & 0x0000FF00) >>  8;
-    int b2 = (c2 & 0x000000FF) >>  0;
+    int r1 = c1 >> 16 & 0xFF;
+    int g1 = c1 >>  8 & 0xFF;
+    int b1 = c1 >>  0 & 0xFF;
+    int r2 = c2 >> 16 & 0xFF;
+    int g2 = c2 >>  8 & 0xFF;
+    int b2 = c2 >>  0 & 0xFF;
 
     int r = (int) (r1 * (1 - w) + r2 * w);
     int g = (int) (g1 * (1 - w) + g2 * w);

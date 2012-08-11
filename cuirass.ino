@@ -1,9 +1,11 @@
+#include <avr/pgmspace.h>
+
 #include <SPI.h>
 #include <Adafruit_WS2801.h>
 
 #include "util.h"
 #include "colors.h"
-#include "text.h"
+//#include "text.h"
 #include "spectrum.h"
 
 // initialize strip
@@ -15,7 +17,7 @@ int numPixels = 210;
 
 Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
-// spectra initializers
+// spectra
 
 uint32_t planckColors[] = {
     black,
@@ -30,23 +32,23 @@ uint32_t planckColors[] = {
 Spectrum planckSpectrum = Spectrum(planckColors, 100);
 Spectrum planckSpectrumShort = Spectrum(planckColors, 40);
 
-uint32_t greenShades[] = {
+uint32_t matrixColors[] = {
     black,
     interpolate(black, green, .02),
     interpolate(black, green, .1),
     green,
     termColor
 };
-Spectrum greenSpectrum = Spectrum(greenShades, 10);
+Spectrum matrixSpectrum = Spectrum(matrixColors, 10);
 
-uint32_t magentaShades[] = {
+uint32_t ranxelColors[] = {
     black,
-    interpolate(black, interpolate(blue, red, 5 / 6.), .02),
-    interpolate(black, interpolate(blue, red, 5 / 6.), .1),
-    interpolate(blue, red, 5 / 6.), // magenta
+    interpolate(black, interpolate(blue, red, .5), .1),
+    interpolate(black, interpolate(blue, red, .5), .2),
+    interpolate(blue, red, .5), // magenta
     termColor
 };
-Spectrum magentaSpectrum = Spectrum(magentaShades, 0);
+Spectrum ranxelSpectrum = Spectrum(ranxelColors, 0);
 
 uint32_t rainbowColors[] = {
     red,
@@ -77,13 +79,19 @@ void repeat(void f(), int n) {
 
 void loop() {
 
-    repeat(effectRainbow, 15);        // 2 minutes
-    repeat(effectCrazyColors, 480);   // 2 minutes
-    repeat(effectMatrix, 8000);       // 10 minutes
-    repeat(effectRedWhiteBlue, 3000); // 2 minutes
-    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
-    repeat(effectFireworks, 900);     // 2 minutes
-    repeat(effectRanxels, 30);        // 2 minutes
+//    repeat(effectRainbow, 15);        // 2 minutes
+//    repeat(effectCrazyColors, 480);   // 2 minutes
+//    repeat(effectMatrix, 8000);       // 10 minutes
+//    repeat(effectRedWhiteBlue, 3000); // 2 minutes
+//    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
+//    repeat(effectFireworks, 900);     // 2 minutes
+//    repeat(effectRanxels, 30);        // 2 minutes
+
+    repeat(effectMouth, 240);           // 2 minutes
+
+
+    strip.show();
+    delay(1000);
 
 //    repeat(effectFire, 10000);
 
@@ -97,7 +105,6 @@ void loop() {
 //    effectBlinkText();
 //    effectSwipeFadingPlanckRanxels();
 //    effectFadingPlanckPixels();
-//    effectMouth();
 //    effectSeizure();
 //    effectBlink();
 //    effectChecker();
@@ -370,9 +377,9 @@ void effectFire() {
 }
 
 void effectMatrix() {
-    int nGamut = greenSpectrum.nGamut();
-    uint32_t c1 = greenSpectrum.gamut()[nGamut - 1];
-    uint32_t c2 = greenSpectrum.gamut()[nGamut - 2];
+    int nGamut = matrixSpectrum.nGamut();
+    uint32_t c1 = matrixSpectrum.gamut()[nGamut - 1];
+    uint32_t c2 = matrixSpectrum.gamut()[nGamut - 2];
     for (int x = 0; x < 12; x++) {
         if (random(20) == 0) {
             setPixel(x, 11, c1);
@@ -389,16 +396,16 @@ void effectMatrix() {
     }
     if (isTimeout()) {
         if (random(2) == 0) {
-            left(greenSpectrum.gamut()[nGamut - 1]);
+            left(matrixSpectrum.gamut()[nGamut - 1]);
         }
         else {
-            right(greenSpectrum.gamut()[nGamut - 1]);
+            right(matrixSpectrum.gamut()[nGamut - 1]);
         }
         uint16_t t = (uint16_t) exponential(1000.);
         setTimeout(t);
     }
     strip.show();
-    rotate(greenSpectrum, false);
+    rotate(matrixSpectrum, false);
     delay(50);
 }
 
@@ -475,13 +482,13 @@ void effectRedWhiteBlue() {
 void effectRanxels() {
     int nSteps = 16;
     for (int i = 0; i < nSteps; i++) {
-        ranxels(magentaSpectrum);
-        top(magentaSpectrum.at(i / (float) nSteps));
+        ranxels(ranxelSpectrum);
+        top(ranxelSpectrum.at(i / (float) nSteps));
         strip.show();
     }
     for (int i = nSteps - 1; i >= 0; i--) {
-        ranxels(magentaSpectrum);
-        top(magentaSpectrum.at(i / (float) nSteps));
+        ranxels(ranxelSpectrum);
+        top(ranxelSpectrum.at(i / (float) nSteps));
         strip.show();
     }
 }
@@ -532,13 +539,17 @@ void effectFadingPlanckPixels() {
 }
 
 void effectMouth() {
+    right(black);
+    left(grays[2]);
     for (int d=1; d<=6; d+=1) {
-        solid(black);
+        mid(black);
         square(d, grays[2]);
         strip.show();
     }
+    left(black);
+    right(grays[2]);
     for (int d=6; d>=1; d-=1) {
-        solid(black);
+        mid(black);
         square(d, grays[2]);
         strip.show();
     }
