@@ -40,6 +40,7 @@ void shiftLeft();
 void dim();
 void dimLess();
 void dimFloat(float f);
+void topDim(float f);
 void midDim();
 void midDimLess();
 void midDimFloat(float f);
@@ -66,5 +67,7 @@ uint32_t decay(uint32_t c);
 void setTimeout(unsigned long m);
 bool isTimeout();
 void clearTimeout();
+void rotate(Spectrum &s, bool reverse);
+void rotate(Spectrum &s, int i, bool reverse);
 
 #endif

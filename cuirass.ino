@@ -3,9 +3,10 @@
 
 #include "util.h"
 #include "colors.h"
+#include "text.h"
 #include "spectrum.h"
 
-// strip initialization
+// initialize strip
 
 int dataPin  = 2;    // yellow wire
 int clockPin = 3;    // green wire
@@ -14,23 +15,9 @@ int numPixels = 210;
 
 Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
-//
-// gamut-related stuff: move all but globals into Spectrum
-//
+// initializer spectra
 
-#define n_gamut 100
-
-void rotate(uint32_t (*next)(uint32_t)) {
-    for (int i = 0; i < strip.numPixels(); i++) {
-        uint32_t c = strip.getPixelColor(i);
-        c = (*next)(c);
-        strip.setPixelColor(i, c);
-    }
-}
-
-// for effectPlanckFlash:
-// #define n_gamut 100
-uint32_t planck_colors[] = {
+uint32_t planckColors[] = {
     black,
     interpolate(black, red, .0125),
     interpolate(black, red, .025),
@@ -39,82 +26,130 @@ uint32_t planck_colors[] = {
     interpolate(black, red, .2),
     interpolate(black, red, .5),
     orange,
-    cyan
+    cyan,
+    termColor
 };
 
-// for effectMatrix
-// #define n_gamut 10
-uint32_t green_shades[] = {
+uint32_t greenShades[] = {
     black,
     interpolate(black, green, .02),
     interpolate(black, green, .1),
-    green
+    green,
+    termColor
 };
 
-Spectrum green_spectrum = Spectrum(green_shades, 4);
+uint32_t orangeShades[] = {
+    black,
+    interpolate(black, orange, .02),
+    interpolate(black, orange, .1),
+    orange,
+    termColor
+};
 
-Spectrum planck_spectrum = Spectrum(planck_colors, 9);
+uint32_t rainbowColors[] = {
+    red,
+    green,
+    blue,
+    interpolate(blue, red, .99),
+    termColor
+};
 
-uint32_t planck_gamut[n_gamut + 1];
+Spectrum planckSpectrum = Spectrum(planckColors, 100);
+Spectrum greenSpectrum = Spectrum(greenShades, 10);
+Spectrum orangeSpectrum = Spectrum(orangeShades, 0);
+Spectrum rainbowSpectrum = Spectrum(rainbowColors, 40);
 
-uint32_t green_gamut[n_gamut + 1];
-
-uint32_t planck_prev(uint32_t c) {
-    if (c == black) {
-        return black;
-    }
-    for (int i = n_gamut; i > 0; i--) {
-        if (c == planck_gamut[i]) {
-            return planck_gamut[i - 1];
-        }
-    }
-    return black;
-}
-
-uint32_t green_prev(uint32_t c) {
-    if (c == black) {
-        return black;
-    }
-    for (int i = n_gamut; i > 0; i--) {
-        if (c == green_gamut[i]) {
-            return green_gamut[i - 1];
-        }
-    }
-    return black;
-}
-
-//
-// END gamut-related stuff
-//
+// main loop
 
 void setup() {    
     strip.begin();
     strip.show();
-    for (int i = 0; i <= n_gamut; i++) {
-        planck_gamut[i] = planck_spectrum.at(i / (float) n_gamut);
-    }
-    for (int i = 0; i <= n_gamut; i++) {
-        green_gamut[i] = green_spectrum.at(i / (float) n_gamut);
-    }
 }
 
 void loop() {
-    effectCrazyColors();
+    effectMatrix();
 }
 
-byte fearText[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
-    1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-    1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-    1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0,
-    1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-    1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-    1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-};
+// effects
+
+void effectSignature() {
+    solid(black);
+    uint32_t *gamut = rainbowSpectrum.gamut();
+    int n = 0;
+    for (int x = 0; x < 12; x++) {
+        setPixel(x, 2, gamut[n++]);
+    }
+    for (int y = 3; y < 12; y++) {
+        setPixel(11, y, gamut[n++]);
+    }
+    for (int x = 10; x >= 0; x--) {
+        setPixel(x, 11, gamut[n++]);
+    }
+    for (int y = 10; y > 2; y--) {
+        setPixel(0, y, gamut[n++]);
+    }
+    for (n = 0; n < 1000; n++) {
+
+        for (int x = 0; x < 12; x++) {
+            rotate(rainbowSpectrum, midLogicToIndex(x, 2), true);
+        }
+        for (int y = 3; y < 12; y++) {
+            rotate(rainbowSpectrum, midLogicToIndex(11, y), true);
+        }
+        for (int x = 10; x >= 0; x--) {
+            rotate(rainbowSpectrum, midLogicToIndex(x, 11), true);
+        }
+        for (int y = 10; y > 2; y--) {
+            rotate(rainbowSpectrum, midLogicToIndex(0, y), true);
+        }
+        bool toggle = n % 2 == 0;
+        bool ak = (n / 20) % 2 == 0;
+
+        for (int x = 1; x < 11; x++) {
+            for (int y = 3; y < 11; y++) {
+                bool on = ak ?
+                    (aText[12 * (11 - y) + x] != 0) : 
+                    (kText[12 * (11 - y) + x] != 0);
+                setPixel(x, y, on & toggle ? grays[2] : black);
+            }
+        }
+        strip.show();
+    }
+}
+
+void effectRainbowFrame() {
+    solid(black);
+    uint32_t *gamut = rainbowSpectrum.gamut();
+    int n = 0;
+    for (int x = 0; x < 12; x++) {
+        setPixel(x, 2, gamut[n++]);
+    }
+    for (int y = 3; y < 12; y++) {
+        setPixel(11, y, gamut[n++]);
+    }
+    for (int x = 10; x >= 0; x--) {
+        setPixel(x, 11, gamut[n++]);
+    }
+    for (int y = 10; y > 2; y--) {
+        setPixel(0, y, gamut[n++]);
+    }
+    for (int i = 0; i < 1000; i++) {
+
+        for (int x = 0; x < 12; x++) {
+            rotate(rainbowSpectrum, midLogicToIndex(x, 2), true);
+        }
+        for (int y = 3; y < 12; y++) {
+            rotate(rainbowSpectrum, midLogicToIndex(11, y), true);
+        }
+        for (int x = 10; x >= 0; x--) {
+            rotate(rainbowSpectrum, midLogicToIndex(x, 11), true);
+        }
+        for (int y = 10; y > 2; y--) {
+            rotate(rainbowSpectrum, midLogicToIndex(0, y), true);
+        }
+        strip.show();
+    }
+}
 
 void effectCrawlText() {
     horizontal(0, grays[2]);
@@ -141,6 +176,29 @@ void effectCrawlText() {
     }
 }
 
+void effectBlinkText() {
+    for (int n = 0; n < 30; n++) {
+        bool toggle = n % 2 == 0;
+        for (int x = 0; x < 12; x++) {
+            for (int y = 2; y < 12; y++) {
+                bool on = (aText[12 * (11 - y) + x] != 0);
+                setPixel(x, y, on & toggle ? grays[2] : black);
+            }
+        }
+        strip.show();
+    }
+    for (int n = 0; n < 30; n++) {
+        bool toggle = n % 2 == 0;
+        for (int x = 0; x < 12; x++) {
+            for (int y = 2; y < 12; y++) {
+                bool on = (kText[12 * (11 - y) + x] != 0);
+                setPixel(x, y, on & toggle ? grays[2] : black);
+            }
+        }
+        strip.show();
+    }
+}
+
 void effectFire() {
     for (int row = 0; row < 6; row++) {
         solid(black);
@@ -153,8 +211,9 @@ void effectFire() {
 }
 
 void effectMatrix() {
-    uint32_t c1 = green_gamut[n_gamut - 1];
-    uint32_t c2 = green_gamut[n_gamut - 2];
+    int nGamut = greenSpectrum.nGamut();
+    uint32_t c1 = greenSpectrum.gamut()[nGamut - 1];
+    uint32_t c2 = greenSpectrum.gamut()[nGamut - 2];
     for (int x = 0; x < 12; x++) {
         if (random(20) == 0) {
             setPixel(x, 11, c1);
@@ -169,14 +228,25 @@ void effectMatrix() {
             }
         }
     }
+    if (isTimeout()) {
+        if (random(2) == 0) {
+            left(greenSpectrum.gamut()[nGamut - 1]);
+        }
+        else {
+            right(greenSpectrum.gamut()[nGamut - 1]);
+        }
+        uint16_t t = (uint16_t) exponential(1000.);
+        setTimeout(t);
+    }
     strip.show();
-    rotate(green_prev);
+    rotate(greenSpectrum, false);
     delay(50);
 }
 
 void effectMatrixFire() {
-    uint32_t c1 = planck_gamut[n_gamut];
-    uint32_t c2 = planck_gamut[n_gamut - 1];
+    int nGamut = planckSpectrum.nGamut();
+    uint32_t c1 = planckSpectrum.gamut()[nGamut - 1];
+    uint32_t c2 = planckSpectrum.gamut()[nGamut - 2];
     for (int x = 0; x < 12; x++) {
         if (random(20) == 0) {
             setPixel(x, 11, c1);
@@ -192,7 +262,7 @@ void effectMatrixFire() {
         }
     }
     strip.show();
-    rotate(planck_prev);
+    rotate(planckSpectrum, false);
     delay(100);
 }
 
@@ -235,31 +305,24 @@ void effectRedWhiteBlue() {
     strip.show();
 }
 
-// for effectRanxels--integrate into Spectrum
-uint32_t orange_shades[] = {
-    black,
-    interpolate(black, orange, .02),
-    interpolate(black, orange, .1),
-    orange
-};
-Spectrum orange_spectrum = Spectrum(orange_shades, 4);
-
 void effectRanxels() {
     for (int i = 0; i < 8; i++) {
-        ranxels(orange_spectrum);
-        top(orange_spectrum.at(i / 8.));
+        ranxels(orangeSpectrum);
+        top(orangeSpectrum.at(i / 8.));
         strip.show();
     }
     for (int i = 7; i >= 0; i--) {
-        ranxels(orange_spectrum);
-        top(orange_spectrum.at(i / 8.));
+        ranxels(orangeSpectrum);
+        top(orangeSpectrum.at(i / 8.));
         strip.show();
     }
 }
 
 void effectSwipeFadingPlanckRanxels() {
-    uint32_t first = planck_gamut[n_gamut];
-    uint32_t last = planck_gamut[0];
+    uint32_t *gamut = planckSpectrum.gamut();
+    int nGamut = planckSpectrum.nGamut();
+    uint32_t first = gamut[nGamut - 1];
+    uint32_t last = gamut[0];
     for (int x = 0; x < 12; x++) {
         vertical(x, first);
         if (x > 0) {
@@ -270,7 +333,7 @@ void effectSwipeFadingPlanckRanxels() {
                 }
             }
         }
-        rotate(planck_prev);
+        rotate(planckSpectrum, false);
         strip.show();
     }
     vertical(11, last);
@@ -280,19 +343,20 @@ void effectSwipeFadingPlanckRanxels() {
         }
     }
     for (int n = 0; n < 200; n++) {
-        rotate(planck_prev);
+        rotate(planckSpectrum, false);
         strip.show();
     }
 }
 
 void effectFadingPlanckPixels() {
+    int nGamut = planckSpectrum.nGamut();
     solid(black);
-    for (int n = 0; n < 100; n++) {
-        setPixel(random(210), planck_gamut[n_gamut - 1]);
+    for (int n = 0; n < 10; n++) {
+        setPixel(random(210), planckSpectrum.gamut()[nGamut - 1]);
     }
     strip.show();
     for (int n = 0; n < 100; n++) {
-        rotate(planck_prev);
+        rotate(planckSpectrum, false);
         strip.show();
     }
     delay(1000);
@@ -324,6 +388,13 @@ void effectSeizure() {
     strip.show();
 }
 
+void effectBlink() {
+    solid(black);
+    strip.show();
+    solid(white);
+    strip.show();
+}
+
 void effectChecker() {
     solid(black);
     for (int i = 0; i < numPixels; i += 2) {
@@ -342,7 +413,7 @@ void effectChecker() {
 void effectFlare() {
     if (isTimeout()) {
         solid(color(255, 32, 0));
-        uint16_t t = (uint16_t) exponential(100.);
+        uint16_t t = (uint16_t) exponential(1000.);
         setTimeout(t);
     }
     dimFloat(.8);
@@ -365,8 +436,10 @@ void effectFlicker() {
 }
 
 void effectPlanckFlash() {
-    for (int n = n_gamut; n >= 0; n--) {
-        solid(planck_gamut[n]);
+    uint32_t *gamut = planckSpectrum.gamut();
+    int nGamut = planckSpectrum.nGamut();
+    for (int n = nGamut - 1; n >= 0; n--) {
+        solid(gamut[n]);
         strip.show();
     }
     delay(1000);
@@ -412,8 +485,8 @@ void effectRainbowCycle() {
 void effectCrazyColors() {
     uint32_t co = strip.getPixelColor(0);
     uint32_t cn = ranxel();
-    for (int i = 0; i < 15; i++) {
-        solid(interpolate(co, cn, i / 15.));
+    for (int i = 0; i < 8; i++) {
+        solid(interpolate(co, cn, i / 7.));
         strip.show();
     }
 }

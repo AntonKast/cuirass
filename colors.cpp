@@ -18,6 +18,12 @@ uint32_t cyan    = interpolate(green, blue,  .5);
 
 uint32_t orange = interpolate(green, red, 5 / 6.);
 
+uint32_t termColor = 0x01000000;
+
+bool isTermColor(uint32_t c) {
+    return (c >> 24) > 0;
+}
+
 uint32_t color(byte r, byte g, byte b) {
 //    return ((((uint32_t) r << 8) | g) << 8) | b;
     uint32_t c = r;

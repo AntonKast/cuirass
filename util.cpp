@@ -234,6 +234,14 @@ void dimFloat(float f) {
     }
 }
 
+void topDim(float f) {
+    for (int r = LEFT_START; r <= RIGHT_END; r++) {
+        uint32_t c = strip.getPixelColor(r);
+        c = pixelDimFloat(c, f);
+        strip.setPixelColor(r, c);
+    }
+}
+
 void midDim() {
     for (int r = MID_START; r <= MID_END; r++) {
         uint32_t c = strip.getPixelColor(r);
@@ -406,8 +414,8 @@ uint32_t decay(uint32_t c) {
     return pixelDimFloat(c, .9);
 }
 
-unsigned long expiry;
-bool isTimeoutSet = false;
+unsigned long expiry = 0;
+bool isTimeoutSet = true;
 
 void setTimeout(unsigned long m) {
     expiry = millis() + m;
@@ -420,4 +428,16 @@ bool isTimeout() {
 
 void clearTimeout() {
     isTimeoutSet = false;
+}
+
+void rotate(Spectrum &s, int i, bool wrap) {
+    uint32_t c = strip.getPixelColor(i);
+    c = s.prev(c, wrap);
+    strip.setPixelColor(i, c);
+}
+
+void rotate(Spectrum &s, bool wrap) {
+    for (int i = 0; i < strip.numPixels(); i++) {
+        rotate(s, i, wrap);
+    }
 }
