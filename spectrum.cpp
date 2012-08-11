@@ -32,7 +32,7 @@ uint32_t Spectrum::at(float index) {
     index *= (nColors_ - 1);
     int il = floor(index);
     int ih = ceil(index);
-    if (ih > nColors_) {
+    if (ih >= nColors_) {
         ih = nColors_ - 1;
     }
     if (il < 0) {

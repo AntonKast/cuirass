@@ -19,9 +19,6 @@ Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
 uint32_t planckColors[] = {
     black,
-    interpolate(black, red, .0125),
-    interpolate(black, red, .025),
-    interpolate(black, red, .05),
     interpolate(black, red, .1),
     interpolate(black, red, .2),
     interpolate(black, red, .5),
@@ -67,10 +64,24 @@ void setup() {
 }
 
 void loop() {
-    effectMatrix();
+    gradient(rainbowSpectrum);
+    strip.show();
 }
 
 // effects
+
+void effectFireworks() {
+    if (isTimeout()) {
+        uint32_t *gamut = planckSpectrum.gamut();
+        int nGamut = planckSpectrum.nGamut();
+        top(gamut[nGamut - 2]);
+        // start down-shifting sparks at mid
+        uint16_t t = (uint16_t) exponential(3000.);
+        setTimeout(t);
+    }
+    rotate(planckSpectrum, false);
+    strip.show();
+}
 
 void effectSignature() {
     solid(black);
