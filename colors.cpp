@@ -16,7 +16,7 @@ uint32_t graylevel(int l) {
     if (l <= 0) {
         return white;
     }
-    if (l <= 24) {
+    if (l <= 8) {
         return 0x01010100 >> l;
     }
     return black;
