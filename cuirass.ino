@@ -78,22 +78,23 @@ void repeat(void f(), int n) {
 
 void loop() {
 
-//    repeat(effectRainbow, 15);        // 2 minutes
-//    repeat(effectCrazyColors, 480);   // 2 minutes
-//    repeat(effectMatrix, 1600);       // 2 minutes
-//    repeat(effectRedWhiteBlue, 3000); // 2 minutes
-//    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
-//    repeat(effectFireworks, 900);     // 2 minutes
-//    repeat(effectRanxels, 30);        // 2 minutes
-//    repeat(effectMouth, 430);         // 2 minutes
-//    repeat(effectFire, 80);           // 2 minutes
-//    repeat(effectSeizure, 40000);     // 2 minutes
-//    repeat(effectFlash, 13);          // 2 minutes
-//    repeat(effectSignature, 10);      // 13 seconds
-//    repeat(effectRainbowFrame, 1);    // 2 minutes
-//    repeat(effectChecker, 240);       // 2 minutes
-//    repeat(effectFadingRanxels, 4800);// 2 minutes
-//    repeat(effectFlare, 4800);        // 2 minutes
+    repeat(effectRainbow, 15);        // 2 minutes
+    repeat(effectCrazyColors, 480);   // 2 minutes
+    repeat(effectMatrix, 1600);       // 2 minutes
+    repeat(effectRedWhiteBlue, 3000); // 2 minutes
+    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
+    repeat(effectFireworks, 900);     // 2 minutes
+    repeat(effectRanxels, 30);        // 2 minutes
+    repeat(effectMouth, 430);         // 2 minutes
+    repeat(effectFire, 80);           // 2 minutes
+    repeat(effectSeizure, 40000);     // 2 minutes
+    repeat(effectFlash, 13);          // 2 minutes
+    repeat(effectSignature, 10);      // 13 seconds
+    repeat(effectRainbowFrame, 1);    // 2 minutes
+    repeat(effectChecker, 240);       // 2 minutes
+    repeat(effectFadingRanxels, 4800);// 2 minutes
+    repeat(effectFlare, 4800);        // 2 minutes
+    repeat(effectWave, 100);            // 2 minutes
 
     strip.show();
 
@@ -108,6 +109,33 @@ void loop() {
 }
 
 // effects
+
+void effectWave() {
+
+    for (float p = 0.; p < 6.28; p += .1) {
+        for (int j = 0; j < 12; j++) {
+            float y = p + 10 * j / 12.;
+            uint8_t level = constrain(64 * (1 + sin(y)), 0, 255);
+            uint32_t c = gray(level);
+            horizontal(j, c);
+            if (j == 11) {
+                top(c);
+            }
+        }
+        strip.show();
+    }
+
+//    for (int n = 0; n < 6; n++) {
+//        int level = constrain(4 * (1 + .5 * sin(n)), 0, 8);
+//        uint32_t c = graylevel(level);
+//        for (int y = 2; y < 12; y++) {
+//            setPixel(0, y, c);
+//        }
+//        shiftRight();
+//        strip.show();
+//        delay(100);
+//    }
+}
 
 void effectFire() {
     uint32_t orange = interpolate(green, red, .5);
