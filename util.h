@@ -43,6 +43,7 @@ void topInnerRing(uint32_t c);
 void topCenter(uint32_t c);
 void shiftDown();
 void shiftLeft();
+void shiftRight();
 void dim();
 void dimLess();
 void dimFloat(float f);

@@ -268,6 +268,17 @@ void shiftLeft() {
     }
 }
 
+void shiftRight() {
+    for (int x = 11; x > 0; x--) {
+        for (int y = 2; y < 12; y++) {
+            int i = midLogicToIndex(x - 1, y);
+            uint32_t c = strip.getPixelColor(i);
+            i = midLogicToIndex(x, y);
+            strip.setPixelColor(i, c);
+        }
+    }
+}
+
 void dim() {
     for (int i = 0; i < strip.numPixels(); i++) {
         uint32_t c = strip.getPixelColor(i);
