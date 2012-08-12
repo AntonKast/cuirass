@@ -101,32 +101,46 @@ int rightLogicToIndex(int x, int y) {
     }
 }
 
-void leftSetPixels(int pairs[][2], int n_pixels, uint32_t c) {
+void leftSetPixels(uint8_t pairs[], int n_pixels, uint32_t c) {
     for (int i = 0; i < n_pixels; i++) {
-        int *pair = pairs[i];
+        uint8_t *pair = &pairs[2 * i];
         setPixel(leftLogicToIndex(pair[0], pair[1]), c);
     }
 }
 
-void rightSetPixels(int pairs[][2], int n_pixels, uint32_t c) {
+void rightSetPixels(uint8_t pairs[], int n_pixels, uint32_t c) {
     for (int i = 0; i < n_pixels; i++) {
-        int *pair = pairs[i];
+        uint8_t *pair = &pairs[2 * i];
         setPixel(rightLogicToIndex(pair[0], pair[1]), c);
     }
 }
 
-int ringPairs[16][2] = {
-    {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {1, 6}, {2, 6},
-    {5, 5}, {6, 4}, {6, 3}, {6, 2}, {5, 1}, {2, 0}, {1, 0}
+uint8_t outerRingPairs[32] = {
+    0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 1, 6, 2, 6, 4, 5, 5, 4, 6, 3,
+    5, 2, 4, 1, 2, 0, 1, 0
 };
 
-int topRowPairs0[][2] = {{0, 0}, {1, 0}, {2, 0}};
-int topRowPairs1[][2] = {{0, 1}, {1, 1}, {2, 1}, {3, 1}, {4, 1}, {5, 1}};
-int topRowPairs2[][2] = {{0, 2}, {1, 2}, {2, 2}, {3, 2}, {4, 2}, {5, 2}, {6, 2}};
-int topRowPairs3[][2] = {{0, 3}, {1, 3}, {2, 3}, {3, 3}, {4, 3}, {5, 3}, {6, 3}};
-int topRowPairs4[][2] = {{0, 4}, {1, 4}, {2, 4}, {3, 4}, {4, 4}, {5, 4}, {6, 4}};
-int topRowPairs5[][2] = {{0, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5}, {5, 5}};
-int topRowPairs6[][2] = {{0, 6}, {1, 6}, {2, 6}};
+uint8_t midRingPairs[24] = {
+    1, 1, 2, 1, 3, 1,
+    1, 2, 4, 2,
+    1, 3, 5, 3,
+    1, 4, 4, 4,
+    1, 5, 2, 5, 3, 5
+};
+
+uint8_t innerRingPairs[12] = {
+    2, 2, 3, 2, 2, 3, 4, 3, 2, 4, 3, 4
+};
+
+uint8_t centerPair[2] = {3, 3};
+
+uint8_t topRowPairs0[6]  = {0, 0, 1, 0, 2, 0};
+uint8_t topRowPairs1[12] = {0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1};
+uint8_t topRowPairs2[14] = {0, 2, 1, 2, 2, 2, 3, 2, 4, 2, 5, 2, 6, 2};
+uint8_t topRowPairs3[14] = {0, 3, 1, 3, 2, 3, 3, 3, 4, 3, 5, 3, 6, 3};
+uint8_t topRowPairs4[14] = {0, 4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 4, 6, 4};
+uint8_t topRowPairs5[12] = {0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5};
+uint8_t topRowPairs6[6]  = {0, 6, 1, 6, 2, 6};
 
 void leftRow(int row, uint32_t c) {
     switch (row) {
@@ -180,12 +194,56 @@ void rightRow(int row, uint32_t c) {
     }
 }
 
-void leftRing(uint32_t c) {
-    leftSetPixels(ringPairs, 16, c);
+void leftOuterRing(uint32_t c) {
+    leftSetPixels(outerRingPairs, 16, c);
 }
 
-void rightRing(uint32_t c) {
-    rightSetPixels(ringPairs, 16, c);
+void leftMidRing(uint32_t c) {
+    leftSetPixels(midRingPairs, 12, c);
+}
+
+void leftInnerRing(uint32_t c) {
+    leftSetPixels(innerRingPairs, 6, c);
+}
+
+void leftCenter(uint32_t c) {
+    leftSetPixels(centerPair, 1, c);
+}
+
+void rightOuterRing(uint32_t c) {
+    rightSetPixels(outerRingPairs, 16, c);
+}
+
+void rightMidRing(uint32_t c) {
+    rightSetPixels(midRingPairs, 12, c);
+}
+
+void rightInnerRing(uint32_t c) {
+    rightSetPixels(innerRingPairs, 6, c);
+}
+
+void rightCenter(uint32_t c) {
+    rightSetPixels(centerPair, 1, c);
+}
+
+void topOuterRing(uint32_t c) {
+    leftOuterRing(c);
+    rightOuterRing(c);
+}
+
+void topMidRing(uint32_t c) {
+    leftMidRing(c);
+    rightMidRing(c);
+}
+
+void topInnerRing(uint32_t c) {
+    leftInnerRing(c);
+    rightInnerRing(c);
+}
+
+void topCenter(uint32_t c) {
+    leftCenter(c);
+    rightCenter(c);
 }
 
 void shiftDown() {

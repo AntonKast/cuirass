@@ -1,26 +1,4 @@
-#include <avr/pgmspace.h>
-
 #include "colors.h"
-
-uint32_t white  = gray(255);
-uint32_t black  = gray(0);
-uint32_t grays[] = {
-    white, 
-    gray(128), gray(64), gray(32), gray(16), gray(8), gray(4), gray(2), gray(1),
-    black
-};
-
-uint32_t red   = 0x00FF0000;
-uint32_t green = 0x0000FF00;
-uint32_t blue  = 0x000000FF;
-
-uint32_t yellow  = interpolate(red,   green, .5);
-uint32_t magenta = interpolate(blue,  red,   .5);
-uint32_t cyan    = interpolate(green, blue,  .5);
-
-uint32_t orange = interpolate(green, red, 5 / 6.);
-
-uint32_t termColor = 0x01000000;
 
 bool isTermColor(uint32_t c) {
     return (c >> 24) > 0;
@@ -32,6 +10,16 @@ uint32_t color(byte r, byte g, byte b) {
 
 uint32_t gray(byte g) {
     return color(g, g, g);
+}
+
+uint32_t graylevel(int l) {
+    if (l <= 0) {
+        return white;
+    }
+    if (l <= 24) {
+        return 0x01010100 >> l;
+    }
+    return black;
 }
 
 uint32_t interpolate(uint32_t c1, uint32_t c2, float w) {
