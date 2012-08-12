@@ -39,16 +39,6 @@ uint32_t matrixColors[] = {
 };
 Spectrum matrixSpectrum = Spectrum(matrixColors, 10);
 
-uint32_t magenta = interpolate(blue,  red,   .5);
-uint32_t ranxelColors[] = {
-    black,
-    interpolate(black, magenta, .1),
-    interpolate(black, magenta, .2),
-    magenta,
-    termColor
-};
-Spectrum ranxelSpectrum = Spectrum(ranxelColors, 0);
-
 uint32_t rainbowColors[] = {
     red,
     green,
@@ -78,33 +68,37 @@ void repeat(void f(), int n) {
 
 void loop() {
 
-    repeat(effectRainbow, 15);        // 2 minutes
+    repeat(effectRainbow, 15);        // 2 minutes *
     repeat(effectCrazyColors, 480);   // 2 minutes
     repeat(effectMatrix, 1600);       // 2 minutes
     repeat(effectRedWhiteBlue, 3000); // 2 minutes
     repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
-    repeat(effectFireworks, 900);     // 2 minutes
-    repeat(effectRanxels, 30);        // 2 minutes
+    repeat(effectFireworks, 900);     // 2 minutes *
+    repeat(effectRanxels, 30);        // 2 minutes *
     repeat(effectMouth, 430);         // 2 minutes
     repeat(effectFire, 80);           // 2 minutes
-    repeat(effectSeizure, 40000);     // 2 minutes
+    repeat(effectSeizure, 1200);      // 2 minutes
     repeat(effectFlash, 13);          // 2 minutes
-    repeat(effectSignature, 10);      // 13 seconds
-    repeat(effectRainbowFrame, 1);    // 2 minutes
+    repeat(effectWave, 100);          // 2 minutes
     repeat(effectChecker, 240);       // 2 minutes
     repeat(effectFadingRanxels, 4800);// 2 minutes
     repeat(effectFlare, 4800);        // 2 minutes
-    repeat(effectWave, 100);            // 2 minutes
 
-    strip.show();
+// SRAM troubles: clobbered text, clobbered gamut
+//    repeat(effectSignature, 10);      // 13 seconds *
+//    repeat(effectRainbowFrame, 1);    // 2 minutes *
 
-//    repeat(effectCrawlText, 10); // broken
+// broken
+//    repeat(effectCrawlText, 10);
 
-//    effectIrisLolaText();     // for production?
-//    effectSignature();        // for production?
+// for fun
+//    effectIrisLolaText();
 
+// pending
 //    effectBlinkText();
 //    effectPlanckFlash();
+
+// rejected
 //    effectSwipeFadingPlanckRanxels();
 }
 
@@ -124,21 +118,10 @@ void effectWave() {
         }
         strip.show();
     }
-
-//    for (int n = 0; n < 6; n++) {
-//        int level = constrain(4 * (1 + .5 * sin(n)), 0, 8);
-//        uint32_t c = graylevel(level);
-//        for (int y = 2; y < 12; y++) {
-//            setPixel(0, y, c);
-//        }
-//        shiftRight();
-//        strip.show();
-//        delay(100);
-//    }
 }
 
 void effectFire() {
-    uint32_t orange = interpolate(green, red, .5);
+    uint32_t orange = interpolate(green, red, 5 / 6.);
     for (int row = 0; row < 42; row++) {
         solid(black);
         leftRow(row % 7, orange);
@@ -478,15 +461,20 @@ void effectRedWhiteBlue() {
 }
 
 void effectRanxels() {
+    uint32_t c = interpolate(red, green, .5);
     int nSteps = 16;
-    for (int i = 0; i < nSteps; i++) {
-        ranxels(ranxelSpectrum);
-        top(ranxelSpectrum.at(i / (float) nSteps));
+    for (int s = 0; s < nSteps; s++) {
+        for (int i = MID_START; i <= MID_END; i++) {
+            setPixel(i, pixelDimFloat(c, random(101) / 100.));
+        }
+        top(pixelDimFloat(c, s / (float) nSteps));
         strip.show();
     }
-    for (int i = nSteps - 1; i >= 0; i--) {
-        ranxels(ranxelSpectrum);
-        top(ranxelSpectrum.at(i / (float) nSteps));
+    for (int s = nSteps - 1; s >= 0; s--) {
+        for (int i = MID_START; i <= MID_END; i++) {
+            setPixel(i, pixelDimFloat(c, random(101) / 100.));
+        }
+        top(pixelDimFloat(c, s / (float) nSteps));
         strip.show();
     }
 }
