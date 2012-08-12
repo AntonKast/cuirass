@@ -78,34 +78,33 @@ void repeat(void f(), int n) {
 
 void loop() {
 
-    repeat(effectRainbow, 15);        // 2 minutes
-    repeat(effectCrazyColors, 480);   // 2 minutes
-    repeat(effectMatrix, 1600);       // 2 minutes
-    repeat(effectRedWhiteBlue, 3000); // 2 minutes
-    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
-    repeat(effectFireworks, 900);     // 2 minutes
-    repeat(effectRanxels, 30);        // 2 minutes
-    repeat(effectMouth, 430);         // 2 minutes
-    repeat(effectFire, 80);           // 2 minutes
-    repeat(effectSeizure, 40000);     // 2 minutes
-    repeat(effectFlash, 13);          // 2 minutes
+//    repeat(effectRainbow, 15);        // 2 minutes
+//    repeat(effectCrazyColors, 480);   // 2 minutes
+//    repeat(effectMatrix, 1600);       // 2 minutes
+//    repeat(effectRedWhiteBlue, 3000); // 2 minutes
+//    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
+//    repeat(effectFireworks, 900);     // 2 minutes
+//    repeat(effectRanxels, 30);        // 2 minutes
+//    repeat(effectMouth, 430);         // 2 minutes
+//    repeat(effectFire, 80);           // 2 minutes
+//    repeat(effectSeizure, 40000);     // 2 minutes
+//    repeat(effectFlash, 13);          // 2 minutes
+//    repeat(effectSignature, 10);      // 13 seconds
+//    repeat(effectRainbowFrame, 1);    // 2 minutes
+//    repeat(effectChecker, 240);       // 2 minutes
+//    repeat(effectFadingRanxels, 4800);// 2 minutes
+//    repeat(effectFlare, 4800);        // 2 minutes
+
+    strip.show();
 
 //    repeat(effectCrawlText, 10); // broken
 
 //    effectIrisLolaText();     // for production?
 //    effectSignature();        // for production?
 
-//    effectRainbowFrame();
-//    effectFadingPlanckPixels();
 //    effectBlinkText();
-//    effectSwipeFadingPlanckRanxels();
-//    effectFadingPlanckPixels();
-//    effectBlink();
-//    effectChecker();
-//    effectFlare();
-//    effectFadingRanxels();
-//    effectFlicker();
 //    effectPlanckFlash();
+//    effectSwipeFadingPlanckRanxels();
 }
 
 // effects
@@ -184,51 +183,6 @@ void polkaDotsLoop(uint32_t back, uint32_t front) {
     }
 }
 
-void effectSignature() {
-    solid(black);
-    uint32_t *gamut = rainbowSpectrum.gamut();
-    int n = 0;
-    for (int x = 0; x < 12; x++) {
-        setPixel(x, 2, gamut[n++]);
-    }
-    for (int y = 3; y < 12; y++) {
-        setPixel(11, y, gamut[n++]);
-    }
-    for (int x = 10; x >= 0; x--) {
-        setPixel(x, 11, gamut[n++]);
-    }
-    for (int y = 10; y > 2; y--) {
-        setPixel(0, y, gamut[n++]);
-    }
-    for (n = 0; n < 1000; n++) {
-
-        for (int x = 0; x < 12; x++) {
-            rotate(rainbowSpectrum, midLogicToIndex(x, 2), true);
-        }
-        for (int y = 3; y < 12; y++) {
-            rotate(rainbowSpectrum, midLogicToIndex(11, y), true);
-        }
-        for (int x = 10; x >= 0; x--) {
-            rotate(rainbowSpectrum, midLogicToIndex(x, 11), true);
-        }
-        for (int y = 10; y > 2; y--) {
-            rotate(rainbowSpectrum, midLogicToIndex(0, y), true);
-        }
-        bool toggle = n % 2 == 0;
-        bool ak = (n / 20) % 2 == 0;
-
-        for (int x = 1; x < 11; x++) {
-            for (int y = 3; y < 11; y++) {
-                bool on = ak ?
-                    (aText[12 * (11 - y) + x] != 0) : 
-                    (kText[12 * (11 - y) + x] != 0);
-                setPixel(x, y, on & toggle ? graylevel(2) : black);
-            }
-        }
-        strip.show();
-    }
-}
-
 void effectRainbowFrame() {
     solid(black);
     uint32_t *gamut = rainbowSpectrum.gamut();
@@ -251,7 +205,7 @@ void effectRainbowFrame() {
         setPixel(leftLogicToIndex(pair[0], pair[1]), gamut[n++]);
         setPixel(rightLogicToIndex(pair[0], pair[1]), gamut[n++]);
     }
-    for (int i = 0; i < 1000; i++) {
+    for (int m = 0; m < 4000; m++) {
 
         for (int x = 0; x < 12; x++) {
             rotate(rainbowSpectrum, midLogicToIndex(x, 2), true);
@@ -269,6 +223,27 @@ void effectRainbowFrame() {
             uint8_t *pair = &outerRingPairs[2 * i];
             rotate(rainbowSpectrum, leftLogicToIndex(pair[0], pair[1]), true);
             rotate(rainbowSpectrum, rightLogicToIndex(pair[0], pair[1]), true);
+        }
+        strip.show();
+    }
+}
+
+void effectSignature() {
+    solid(black);
+
+    for (int n = 0; n < 40; n++) {
+
+        bool toggle = n % 2 == 0;
+        bool ak = (n / 20) % 2 == 0;
+
+        uint32_t gray2 = graylevel(2);
+        for (int x = 1; x < 11; x++) {
+            for (int y = 3; y < 11; y++) {
+                bool on = ak ?
+                    (aText[10 * (10 - y) + (x - 1)] != 0) : 
+                    (kText[10 * (10 - y) + (x - 1)] != 0);
+                setPixel(x, y, on & toggle ? gray2 : black);
+            }
         }
         strip.show();
     }
@@ -518,21 +493,6 @@ void effectSwipeFadingPlanckRanxels() {
     }
 }
 
-void effectFadingPlanckPixels() {
-    int nGamut = planckSpectrum.nGamut();
-    uint32_t *gamut = planckSpectrum.gamut();
-    solid(black);
-    for (int n = 0; n < 10; n++) {
-        setPixel(random(210), gamut[nGamut - 1]);
-    }
-    strip.show();
-    for (int n = 0; n < nGamut; n++) {
-        rotate(planckSpectrum, false);
-        strip.show();
-    }
-    delay(1000);
-}
-
 void effectMouth() {
     uint32_t c = graylevel(2);
 
@@ -610,23 +570,17 @@ void effectSeizure() {
     strip.show();
 }
 
-void effectBlink() {
-    solid(black);
-    strip.show();
-    solid(white);
-    strip.show();
-}
-
 void effectChecker() {
+    uint32_t gray2 = graylevel(2);
     solid(black);
     for (int i = 0; i < numPixels; i += 2) {
-        setPixel(i, white);
+        setPixel(i, gray2);
     }
     strip.show();
     delay(200);
     solid(black);
     for (int i = 1; i < numPixels; i += 2) {
-        setPixel(i, white);
+        setPixel(i, gray2);
     }
     strip.show();
     delay(200);
@@ -646,15 +600,6 @@ void effectFadingRanxels() {
     setPixel(random(210), blue);
     dimFloat(.99);
     strip.show();
-}
-
-void effectFlicker() {
-    solid(white);
-    strip.show();
-    delay(random(100));
-    solid(black);
-    strip.show();
-    delay(random(100));
 }
 
 void effectPlanckFlash() {
