@@ -70,22 +70,25 @@ void repeat(void f(), int n) {
 void loop() {
 
     repeat(effectWave, 100);          // 2 minutes
-    repeat(effectFireworks, 900);     // 2 minutes *
-    repeat(effectFadingRanxels, 4800);// 2 minutes
-    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
-    repeat(effectMatrix, 1600);       // 2 minutes
-    repeat(effectMouth, 430);         // 2 minutes
-    repeat(effectFire, 80);           // 2 minutes
-    repeat(effectRanxels, 3840);      // 2 minutes *
-    repeat(effectRainbow, 15);        // 2 minutes *
-    repeat(effectCrazyColors, 480);   // 2 minutes
-    repeat(effectRedWhiteBlue, 3000); // 2 minutes
-    repeat(effectSeizure, 1200);      // 2 minutes
-    repeat(effectFlash, 13);          // 2 minutes
-    repeat(effectChecker, 240);       // 2 minutes
-    repeat(effectFlare, 4800);        // 2 minutes
+//    repeat(effectFireworks, 3000);    // 2 minutes *
+//    repeat(effectFadingRanxels, 4800);// 2 minutes
+//    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
+//    repeat(effectMatrix, 1600);       // 2 minutes
+//    repeat(effectMouth, 430);         // 2 minutes
+//    repeat(effectFire, 80);           // 2 minutes
+//    repeat(effectRanxels, 3840);      // 2 minutes *
+//    repeat(effectRainbow, 15);        // 2 minutes *
+//    repeat(effectCrazyColors, 480);   // 2 minutes
+//    repeat(effectRedWhiteBlue, 3000); // 2 minutes
+//    repeat(effectSeizure, 1200);      // 2 minutes
+//    repeat(effectFlash, 13);          // 2 minutes
+//    repeat(effectChecker, 240);       // 2 minutes
+//    repeat(effectFlare, 4800);        // 2 minutes
+    solid(blue);
+    strip.show();
+    delay(1000);
 
-    timescale = 1;  // normal speed after first pass
+//    timescale = 1;  // normal speed after first pass
 
 // SRAM troubles: clobbered text, clobbered gamut
 //    repeat(effectSignature, 10);      // 13 seconds *
@@ -108,17 +111,38 @@ void loop() {
 // effects
 
 void effectWave() {
-
     for (float p = 0.; p < 6.28; p += .1) {
         for (int j = 0; j < 12; j++) {
             float y = p + 10 * j / 12.;
             uint8_t level = constrain(64 * (1 + sin(y)), 0, 255);
             uint32_t c = gray(level);
             horizontal(j, c);
-            if (j == 11) {
-                top(c);
-            }
         }
+        float r = p;
+        uint8_t level = constrain(64 * (1 + sin(r)), 0, 255);
+        uint32_t c = gray(level);
+        topCenter(c);
+
+        r -= 3.14 / 8 ;
+        level = constrain(64 * (1 + sin(r)), 0, 255);
+        c = gray(level);
+        topInnerRing(c);
+
+        r -= 3.14 / 8 ;
+        level = constrain(64 * (1 + sin(r)), 0, 255);
+        c = gray(level);
+        topMidRing(c);
+
+        r -= 3.14 / 8 ;
+        level = constrain(64 * (1 + sin(r)), 0, 255);
+        c = gray(level);
+        topOuterRing(c);
+
+        r -= 3.14 / 8 ;
+        level = constrain(64 * (1 + sin(r)), 0, 255);
+        c = gray(level);
+        topEdge(c);
+
         strip.show();
     }
 }
@@ -136,8 +160,10 @@ void effectFire() {
 }
 
 void effectPolkaDots() {
-    int nReps = 10;
-
+    int nReps = 10 / timescale;
+    if (nReps == 0) {
+        nReps = 1;
+    }
     uint32_t back, front;
 
     back = interpolate(black, red, .25);

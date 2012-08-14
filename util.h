@@ -38,6 +38,7 @@ void rightMidRing(uint32_t c);
 void rightInnerRing(uint32_t c);
 void rightCenter(uint32_t c);
 void topOuterRing(uint32_t c);
+void topEdge(uint32_t c);
 void topMidRing(uint32_t c);
 void topInnerRing(uint32_t c);
 void topCenter(uint32_t c);

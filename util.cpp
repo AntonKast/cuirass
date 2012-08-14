@@ -115,6 +115,8 @@ void rightSetPixels(uint8_t pairs[], int n_pixels, uint32_t c) {
     }
 }
 
+uint8_t edgePairs[8] = {5, 1, 6, 2, 6, 4, 5, 5};
+
 uint8_t outerRingPairs[32] = {
     0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 1, 6, 2, 6, 4, 5, 5, 4, 6, 3,
     5, 2, 4, 1, 2, 0, 1, 0
@@ -194,6 +196,10 @@ void rightRow(int row, uint32_t c) {
     }
 }
 
+void leftEdge(uint32_t c) {
+    leftSetPixels(edgePairs, 4, c);
+}
+
 void leftOuterRing(uint32_t c) {
     leftSetPixels(outerRingPairs, 16, c);
 }
@@ -210,6 +216,10 @@ void leftCenter(uint32_t c) {
     leftSetPixels(centerPair, 1, c);
 }
 
+void rightEdge(uint32_t c) {
+    rightSetPixels(edgePairs, 4, c);
+}
+
 void rightOuterRing(uint32_t c) {
     rightSetPixels(outerRingPairs, 16, c);
 }
@@ -224,6 +234,11 @@ void rightInnerRing(uint32_t c) {
 
 void rightCenter(uint32_t c) {
     rightSetPixels(centerPair, 1, c);
+}
+
+void topEdge(uint32_t c) {
+    leftEdge(c);
+    rightEdge(c);
 }
 
 void topOuterRing(uint32_t c) {
