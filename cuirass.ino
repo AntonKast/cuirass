@@ -70,25 +70,22 @@ void repeat(void f(), int n) {
 void loop() {
 
     repeat(effectWave, 100);          // 2 minutes
-//    repeat(effectFireworks, 3000);    // 2 minutes *
-//    repeat(effectFadingRanxels, 4800);// 2 minutes
-//    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
-//    repeat(effectMatrix, 1600);       // 2 minutes
-//    repeat(effectMouth, 430);         // 2 minutes
-//    repeat(effectFire, 80);           // 2 minutes
-//    repeat(effectRanxels, 3840);      // 2 minutes *
-//    repeat(effectRainbow, 15);        // 2 minutes *
-//    repeat(effectCrazyColors, 480);   // 2 minutes
-//    repeat(effectRedWhiteBlue, 3000); // 2 minutes
-//    repeat(effectSeizure, 1200);      // 2 minutes
-//    repeat(effectFlash, 13);          // 2 minutes
-//    repeat(effectChecker, 240);       // 2 minutes
-//    repeat(effectFlare, 4800);        // 2 minutes
-    solid(blue);
-    strip.show();
-    delay(1000);
+    repeat(effectFireworks, 3000);    // 2 minutes *
+    repeat(effectFadingRanxels, 4800);// 2 minutes
+    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
+    repeat(effectMatrix, 1600);       // 2 minutes
+    repeat(effectMouth, 430);         // 2 minutes
+    repeat(effectFire, 80);           // 2 minutes
+    repeat(effectRanxels, 3840);      // 2 minutes *
+    repeat(effectRainbow, 15);        // 2 minutes *
+    repeat(effectCrazyColors, 480);   // 2 minutes
+    repeat(effectRedWhiteBlue, 3000); // 2 minutes
+    repeat(effectSeizure, 1200);      // 2 minutes
+    repeat(effectFlash, 13);          // 2 minutes
+    repeat(effectChecker, 240);       // 2 minutes
+    repeat(effectFlare, 4800);        // 2 minutes
 
-//    timescale = 1;  // normal speed after first pass
+    timescale = 1;  // normal speed after first pass
 
 // SRAM troubles: clobbered text, clobbered gamut
 //    repeat(effectSignature, 10);      // 13 seconds *
