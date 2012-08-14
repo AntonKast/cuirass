@@ -55,9 +55,10 @@ void setup() {
     strip.show();
 }
 
+int timescale = 20; // first pass is accelerated
+
 void repeat(void f(), int n) {
-    int div = 1;    // cycle faster in development
-    for (int i = 0; i <= n / div; i++) {
+    for (int i = 0; i <= n / timescale; i++) {
         f();
     }
     for (int i = 0; i < 100; i++) {
@@ -68,21 +69,23 @@ void repeat(void f(), int n) {
 
 void loop() {
 
-    repeat(effectRainbow, 15);        // 2 minutes *
-    repeat(effectCrazyColors, 480);   // 2 minutes
-    repeat(effectMatrix, 1600);       // 2 minutes
-    repeat(effectRedWhiteBlue, 3000); // 2 minutes
-    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
+    repeat(effectWave, 100);          // 2 minutes
     repeat(effectFireworks, 900);     // 2 minutes *
-    repeat(effectRanxels, 30);        // 2 minutes *
+    repeat(effectFadingRanxels, 4800);// 2 minutes
+    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
+    repeat(effectMatrix, 1600);       // 2 minutes
     repeat(effectMouth, 430);         // 2 minutes
     repeat(effectFire, 80);           // 2 minutes
+    repeat(effectRanxels, 3840);      // 2 minutes *
+    repeat(effectRainbow, 15);        // 2 minutes *
+    repeat(effectCrazyColors, 480);   // 2 minutes
+    repeat(effectRedWhiteBlue, 3000); // 2 minutes
     repeat(effectSeizure, 1200);      // 2 minutes
     repeat(effectFlash, 13);          // 2 minutes
-    repeat(effectWave, 100);          // 2 minutes
     repeat(effectChecker, 240);       // 2 minutes
-    repeat(effectFadingRanxels, 4800);// 2 minutes
     repeat(effectFlare, 4800);        // 2 minutes
+
+    timescale = 1;  // normal speed after first pass
 
 // SRAM troubles: clobbered text, clobbered gamut
 //    repeat(effectSignature, 10);      // 13 seconds *
@@ -462,21 +465,10 @@ void effectRedWhiteBlue() {
 
 void effectRanxels() {
     uint32_t c = interpolate(red, green, .5);
-    int nSteps = 16;
-    for (int s = 0; s < nSteps; s++) {
-        for (int i = MID_START; i <= MID_END; i++) {
-            setPixel(i, pixelDimFloat(c, random(101) / 100.));
-        }
-        top(pixelDimFloat(c, s / (float) nSteps));
-        strip.show();
+    for (int i = 0; i < numPixels; i++) {
+        setPixel(i, pixelDimExp(c, random(7)));
     }
-    for (int s = nSteps - 1; s >= 0; s--) {
-        for (int i = MID_START; i <= MID_END; i++) {
-            setPixel(i, pixelDimFloat(c, random(101) / 100.));
-        }
-        top(pixelDimFloat(c, s / (float) nSteps));
-        strip.show();
-    }
+    strip.show();
 }
 
 void effectSwipeFadingPlanckRanxels() {

@@ -303,6 +303,14 @@ void dimFloat(float f) {
     }
 }
 
+void dimExp(int e) {
+    for (int r = 0; r < strip.numPixels(); r++) {
+        uint32_t c = strip.getPixelColor(r);
+        c = pixelDimExp(c, e);
+        strip.setPixelColor(r, c);
+    }
+}
+
 void topDim(float f) {
     for (int r = LEFT_START; r <= RIGHT_END; r++) {
         uint32_t c = strip.getPixelColor(r);
@@ -364,6 +372,13 @@ uint32_t pixelDimFloat(uint32_t c, float f) {
     int r = (int) (((c & 0x00FF0000) >> 16) * f);
     int g = (int) (((c & 0x0000FF00) >>  8) * f);
     int b = (int) (((c & 0x000000FF) >>  0) * f);
+    return color(r, g, b);
+}
+
+uint32_t pixelDimExp(uint32_t c, int e) {
+    int r = (((c & 0x00FF0000) >> 16) >> e);
+    int g = (((c & 0x0000FF00) >>  8) >> e);
+    int b = (((c & 0x000000FF) >>  0) >> e);
     return color(r, g, b);
 }
 
