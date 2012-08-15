@@ -3,7 +3,6 @@
 
 #include "util.h"
 #include "colors.h"
-#include "text.h"
 #include "spectrum.h"
 
 // initialize strip
