@@ -62,9 +62,6 @@ void loop() {
 
     timescale = 1;  // normal speed after first pass
 
-// jerky, hard to read
-//    repeat(effectCrawlText, 10);
-
 // for fun
 //    repeat(effectIrisLolaText, 20);
 }
