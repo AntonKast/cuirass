@@ -24,60 +24,62 @@ void setup() {
 
 int timescale = 20; // first pass is accelerated
 
-void repeat(void f(), int n) {
-    for (int i = 0; i <= n / timescale; i++) {
-        f();
-    }
+void fadeToBlack() {
     for (int i = 0; i < 100; i++) {
         dimFloat(.95);
         strip.show();
     }
 }
 
+void repeat(void f(), int n) {
+    for (int i = 0; i <= n / timescale; i++) {
+        f();
+    }
+    fadeToBlack();
+}
+
 void loop() {
 
-    repeat(effectWave, 100);          // 2 minutes
-    repeat(effectFireworks, 3000);    // 2 minutes *
-    repeat(effectFadingRanxels, 4800);// 2 minutes
-    repeat(effectPolkaDots, 2);       // 2 minutes 40 seconds
-    repeat(effectMatrix, 1600);       // 2 minutes
-    repeat(effectMouth, 430);         // 2 minutes
-    repeat(effectFire, 80);           // 2 minutes
-    repeat(effectRanxels, 3840);      // 2 minutes *
-    repeat(effectRainbow, 15);        // 2 minutes *
-    repeat(effectCrazyColors, 480);   // 2 minutes
-    repeat(effectRedWhiteBlue, 3000); // 2 minutes
-    repeat(effectSeizure, 1200);      // 2 minutes
-    repeat(effectFlash, 13);          // 2 minutes
-    repeat(effectChecker, 240);       // 2 minutes
-    repeat(effectFlare, 4800);        // 2 minutes
-    repeat(effectRainbowFrame, 1);    // 2 minutes *
-    repeat(effectSignature, 10);      // 13 seconds *
+    repeat(effectWave, 200);
+    repeat(effectFireworks, 3000);
+    repeat(effectFadingRanxels, 4800);
+    effectPolkaDots(timescale < 10 ? 10 / timescale : 1); fadeToBlack();
+    repeat(effectMatrix, 1600);
+    repeat(effectCrawlTextFear, 10);
+    repeat(effectMouth, 430);
+    repeat(effectFire, 80);
+    repeat(effectRanxels, 3840);
+    repeat(effectCrawlTextLust, 10);
+    repeat(effectRainbow, 15);
+    repeat(effectCrazyColors, 480);
+    repeat(effectRedWhiteBlue, 3000);
+    repeat(effectSeizure, 1200);
+    repeat(effectCrawlTextLove, 10);
+    repeat(effectFlash, 13);
+    repeat(effectChecker, 240);
+    repeat(effectFlare, 4800);
+    effectRainbowFrame(8000 / timescale); fadeToBlack();
 
     timescale = 1;  // normal speed after first pass
 
-// SRAM troubles: clobbered text, clobbered gamut
-
-// broken
+// jerky, hard to read
 //    repeat(effectCrawlText, 10);
 
 // for fun
-//    effectIrisLolaText();
-
-// pending
-//    effectBlinkText();
-//    effectPlanckFlash();
+//    repeat(effectIrisLolaText, 20);
 }
 
 // effects
 
 void effectWave() {
-    for (float p = 0.; p < 6.28; p += .1) {
-        for (int j = 0; j < 12; j++) {
-            float y = p + 10 * j / 12.;
-            uint8_t level = constrain(64 * (1 + sin(y)), 0, 255);
-            uint32_t c = gray(level);
-            horizontal(j, c);
+    for (float p = 0.; p < 6.28; p += .4) {
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                float r = 6.28 * sqrt(sq(i - 5.5) + sq(j - 5.5)) / 5.5;
+                uint8_t level = constrain(64 * (1 + sin(r - p)), 0, 255);
+                uint32_t c = gray(level);
+                setPixel(i, j, c);
+            }
         }
         float r = p;
         uint8_t level = constrain(64 * (1 + sin(r)), 0, 255);
@@ -120,11 +122,7 @@ void effectFire() {
     }
 }
 
-void effectPolkaDots() {
-    int nReps = 10 / timescale;
-    if (nReps == 0) {
-        nReps = 1;
-    }
+void effectPolkaDots(int nReps) {
     uint32_t back, front;
 
     back = interpolate(black, red, .25);
@@ -195,7 +193,32 @@ Spectrum createRainbowSpectrum() {
     return createSpectrum(rainbowColors, 40);
 }
 
-void effectRainbowFrame() {
+void effectRainbowFrame(int steps) {
+    byte aText[] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    };
+
+    byte kText[] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    };
     Spectrum s = createRainbowSpectrum();
     uint32_t *gamut = s.gamut;
 
@@ -219,7 +242,9 @@ void effectRainbowFrame() {
         setPixel(leftLogicToIndex(pair[0], pair[1]), gamut[n++]);
         setPixel(rightLogicToIndex(pair[0], pair[1]), gamut[n++]);
     }
-    for (int m = 0; m < 4000; m++) {
+    uint32_t gray2 = graylevel(2);
+
+    for (int m = 0; m < steps; m++) {
 
         for (int x = 0; x < 12; x++) {
             rotate(s, midLogicToIndex(x, 2), true);
@@ -238,20 +263,9 @@ void effectRainbowFrame() {
             rotate(s, leftLogicToIndex(pair[0], pair[1]), true);
             rotate(s, rightLogicToIndex(pair[0], pair[1]), true);
         }
-        strip.show();
-    }
-    destroySpectrum(s);
-}
+        bool toggle = m % 2 == 0;
+        bool ak = (m / 20) % 2 == 0;
 
-void effectSignature() {
-    solid(black);
-
-    for (int n = 0; n < 40; n++) {
-
-        bool toggle = n % 2 == 0;
-        bool ak = (n / 20) % 2 == 0;
-
-        uint32_t gray2 = graylevel(2);
         for (int x = 1; x < 11; x++) {
             for (int y = 3; y < 11; y++) {
                 bool on = ak ?
@@ -262,9 +276,29 @@ void effectSignature() {
         }
         strip.show();
     }
+    destroySpectrum(s);
 }
 
 void effectIrisLolaText() {
+    byte irisText[] = {
+        0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0,
+        0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+        0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
+        0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0,
+        0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1,
+        0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 
+        0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0,
+    };              
+                    
+    byte lolaText[] = { 
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0,
+        1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1,
+        1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1,
+        1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1,
+        1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1,
+        1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1,
+        1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1,
+    };  
     solid(black);
     for (int n = 0; n <= 64; n++) {
         uint32_t c = interpolate(black, white, n / 64.);
@@ -313,52 +347,67 @@ void effectIrisLolaText() {
     }
 }
 
-void effectCrawlText() {
-    horizontal(0, graylevel(2));
-    horizontal(1, graylevel(2));
-    int row = 0;
-    for (int i = 0; i < 20; i++) {
+void crawlText(byte text[]) {
+    solid(black);
+    uint32_t c = graylevel(2);
+    for (int i = 0; i < 15; i++) {
         shiftLeft();
-        for (int y = 0; y < 12; y++) {
-            if (fearText[20 * y + i] > 0) {
-                setPixel(11, 11 - y, black);
+        for (int y = 3; y < 10; y++) {
+            if (text[15 * (9 - y) + i] > 0) {
+                setPixel(11, y, c);
             }
             else {
-                setPixel(11, 11 - y, graylevel(2));
+                setPixel(11, y, black);
             }
         }
-        top(graylevel(2));
-        leftRow(row, black);
-        leftRow((row + 3) % 7, black);
-        rightRow(row, black);
-        rightRow((row + 3) % 7, black);
-        row = (row + 1) % 7;
+        strip.show();
+        delay(100);
+    }
+    for (int i = 0; i < 12; i++) {
+        shiftLeft();
+        vertical(11, black);
         strip.show();
         delay(100);
     }
 }
 
-void effectBlinkText() {
-    for (int n = 0; n < 30; n++) {
-        bool toggle = n % 2 == 0;
-        for (int x = 0; x < 12; x++) {
-            for (int y = 2; y < 12; y++) {
-                bool on = (aText[12 * (11 - y) + x] != 0);
-                setPixel(x, y, on & toggle ? graylevel(2) : black);
-            }
-        }
-        strip.show();
-    }
-    for (int n = 0; n < 30; n++) {
-        bool toggle = n % 2 == 0;
-        for (int x = 0; x < 12; x++) {
-            for (int y = 2; y < 12; y++) {
-                bool on = (kText[12 * (11 - y) + x] != 0);
-                setPixel(x, y, on & toggle ? graylevel(2) : black);
-            }
-        }
-        strip.show();
-    }
+void effectCrawlTextFear() {
+    byte text[] = { 
+        1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0,
+        1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1,
+        1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1,
+        1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0,
+        1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1,
+        1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1,
+        1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+    };          
+    crawlText(text);
+}
+
+void effectCrawlTextLust() {
+    byte text[] = {
+        1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1,
+        1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0,
+        1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0,
+        1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0,
+        1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0,
+        1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0,
+        1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
+    };
+    crawlText(text);
+}
+
+void effectCrawlTextLove() {
+    byte text[] = {
+        1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1,
+        1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
+        1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
+        1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0,
+        1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
+        1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
+        1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1,
+    };
+    crawlText(text);
 }
 
 Spectrum createMatrixSpectrum() {
@@ -614,18 +663,6 @@ void effectFadingRanxels() {
     setPixel(random(210), blue);
     dimFloat(.99);
     strip.show();
-}
-
-void effectPlanckFlash() {
-    int size = 100;
-    Spectrum s = createPlanckSpectrum(100);
-    uint32_t *gamut = s.gamut;
-    for (int n = size - 1; n >= 0; n--) {
-        solid(gamut[n]);
-        strip.show();
-    }
-    delay(1000);
-    destroySpectrum(s);
 }
 
 void effectFlash() {
