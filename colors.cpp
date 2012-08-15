@@ -1,9 +1,5 @@
 #include "colors.h"
 
-bool isTermColor(uint32_t c) {
-    return (c >> 24) > 0;
-}
-
 uint32_t color(byte r, byte g, byte b) {
     return ((((uint32_t) r << 8) | g) << 8) | b;
 }

@@ -78,9 +78,9 @@ uint32_t decay(uint32_t c);
 void setTimeout(unsigned long m);
 bool isTimeout();
 void clearTimeout();
-void rotate(Spectrum &s, bool reverse);
-void rotateMid(Spectrum &s, bool reverse);
-void rotateTop(Spectrum &s, bool reverse);
-void rotate(Spectrum &s, int i, bool reverse);
+void rotate(Spectrum s, bool wrap);
+void rotateMid(Spectrum s, bool wrap);
+void rotateTop(Spectrum s, bool wrap);
+void rotate(Spectrum s, int i, bool wrap);
 
 #endif

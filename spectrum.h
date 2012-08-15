@@ -3,28 +3,19 @@
 
 #include <stdint.h>
 
-class Spectrum {
+#define termColor 0x01000000
 
-    public:
+typedef struct {
+    uint32_t *gamut;
+    uint8_t size;
+} Spectrum;
 
-    Spectrum(uint32_t *colors, int nGamut);
-    ~Spectrum();
+Spectrum createSpectrum(uint32_t *colors, int size);
 
-    uint32_t at(float index);
+uint32_t nextColor(Spectrum s, uint32_t c, bool wrap);
 
-    uint32_t *gamut();
-    int nGamut();
+uint32_t prevColor(Spectrum s, uint32_t c, bool wrap);
 
-    uint32_t prev(uint32_t c, bool wrap);
-    uint32_t next(uint32_t c, bool wrap);
-
-    private:
-
-    uint32_t *colors_;
-    int nColors_;
-
-    uint32_t *gamut_;
-    int nGamut_;
-};
+void destroySpectrum(Spectrum s);
 
 #endif

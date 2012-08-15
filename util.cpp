@@ -431,15 +431,15 @@ void square(int size, uint32_t c) {
     }
 }
 
-void ranxels(Spectrum &s) {
+void ranxels(Spectrum s) {
     for (int i = 0; i < strip.numPixels(); i++) {
         uint32_t c = ranxel(s);
         strip.setPixelColor(i, c);
     }
 }
 
-uint32_t ranxel(Spectrum &s) {
-    return s.at(random(100) / 100.);
+uint32_t ranxel(Spectrum s) {
+    return s.gamut[random(s.size)];
 }
 
 uint32_t ranxel() {
@@ -463,10 +463,10 @@ void gradient(uint32_t cl, uint32_t ch) {
     }
 }
 
-void gradient(Spectrum &s) {
+void gradient(Spectrum s) {
     for (int x = 0; x < 12; x++) {
         float w = x / 11.;
-        uint32_t c = s.at(w);
+        uint32_t c = s.gamut[(int) x * s.size / 12];
         vertical(x, c);
     }
 }
@@ -537,25 +537,25 @@ void clearTimeout() {
     isTimeoutSet = false;
 }
 
-void rotate(Spectrum &s, int i, bool wrap) {
+void rotate(Spectrum s, int i, bool wrap) {
     uint32_t c = strip.getPixelColor(i);
-    c = s.prev(c, wrap);
+    c = prevColor(s, c, wrap);
     strip.setPixelColor(i, c);
 }
 
-void rotate(Spectrum &s, bool wrap) {
+void rotate(Spectrum s, bool wrap) {
     for (int i = 0; i < strip.numPixels(); i++) {
         rotate(s, i, wrap);
     }
 }
 
-void rotateMid(Spectrum &s, bool wrap) {
+void rotateMid(Spectrum s, bool wrap) {
     for (int i = 0; i <= MID_END; i++) {
         rotate(s, i, wrap);
     }
 }
 
-void rotateTop(Spectrum &s, bool wrap) {
+void rotateTop(Spectrum s, bool wrap) {
     for (int i = LEFT_START; i <= RIGHT_END; i++) {
         rotate(s, i, wrap);
     }

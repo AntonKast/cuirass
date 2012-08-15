@@ -15,39 +15,6 @@ int numPixels = 210;
 
 Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
-// spectra
-
-uint32_t planckColors[] = {
-    black,
-    interpolate(black, red, .1),
-    interpolate(black, red, .2),
-    interpolate(black, red, .5),
-    interpolate(green, red, 5 / 6.), // magenta
-    interpolate(red, green, .5),     // yellow
-    0x00ffffff,                      // white
-    termColor
-};
-Spectrum planckSpectrum = Spectrum(planckColors, 100);
-Spectrum planckSpectrumShort = Spectrum(planckColors, 40);
-
-uint32_t matrixColors[] = {
-    black,
-    interpolate(black, green, .02),
-    interpolate(black, green, .1),
-    green,
-    termColor
-};
-Spectrum matrixSpectrum = Spectrum(matrixColors, 10);
-
-uint32_t rainbowColors[] = {
-    red,
-    green,
-    blue,
-    interpolate(blue, red, .99),
-    termColor
-};
-Spectrum rainbowSpectrum = Spectrum(rainbowColors, 40);
-
 // main loop
 
 void setup() {    
@@ -84,12 +51,12 @@ void loop() {
     repeat(effectFlash, 13);          // 2 minutes
     repeat(effectChecker, 240);       // 2 minutes
     repeat(effectFlare, 4800);        // 2 minutes
+    repeat(effectRainbowFrame, 1);    // 2 minutes *
+    repeat(effectSignature, 10);      // 13 seconds *
 
     timescale = 1;  // normal speed after first pass
 
 // SRAM troubles: clobbered text, clobbered gamut
-//    repeat(effectSignature, 10);      // 13 seconds *
-//    repeat(effectRainbowFrame, 1);    // 2 minutes *
 
 // broken
 //    repeat(effectCrawlText, 10);
@@ -100,9 +67,6 @@ void loop() {
 // pending
 //    effectBlinkText();
 //    effectPlanckFlash();
-
-// rejected
-//    effectSwipeFadingPlanckRanxels();
 }
 
 // effects
@@ -220,9 +184,22 @@ void polkaDotsLoop(uint32_t back, uint32_t front) {
     }
 }
 
+Spectrum createRainbowSpectrum() {
+    uint32_t rainbowColors[] = {
+        red,
+        green,
+        blue,
+        interpolate(blue, red, .99),
+        termColor
+    };
+    return createSpectrum(rainbowColors, 40);
+}
+
 void effectRainbowFrame() {
+    Spectrum s = createRainbowSpectrum();
+    uint32_t *gamut = s.gamut;
+
     solid(black);
-    uint32_t *gamut = rainbowSpectrum.gamut();
     int n = 0;
     for (int x = 0; x < 12; x++) {
         setPixel(x, 2, gamut[n++]);
@@ -245,24 +222,25 @@ void effectRainbowFrame() {
     for (int m = 0; m < 4000; m++) {
 
         for (int x = 0; x < 12; x++) {
-            rotate(rainbowSpectrum, midLogicToIndex(x, 2), true);
+            rotate(s, midLogicToIndex(x, 2), true);
         }
         for (int y = 3; y < 12; y++) {
-            rotate(rainbowSpectrum, midLogicToIndex(11, y), true);
+            rotate(s, midLogicToIndex(11, y), true);
         }
         for (int x = 10; x >= 0; x--) {
-            rotate(rainbowSpectrum, midLogicToIndex(x, 11), true);
+            rotate(s, midLogicToIndex(x, 11), true);
         }
         for (int y = 10; y > 2; y--) {
-            rotate(rainbowSpectrum, midLogicToIndex(0, y), true);
+            rotate(s, midLogicToIndex(0, y), true);
         }
         for (int i = 0; i < 16; i++) {
             uint8_t *pair = &outerRingPairs[2 * i];
-            rotate(rainbowSpectrum, leftLogicToIndex(pair[0], pair[1]), true);
-            rotate(rainbowSpectrum, rightLogicToIndex(pair[0], pair[1]), true);
+            rotate(s, leftLogicToIndex(pair[0], pair[1]), true);
+            rotate(s, rightLogicToIndex(pair[0], pair[1]), true);
         }
         strip.show();
     }
+    destroySpectrum(s);
 }
 
 void effectSignature() {
@@ -383,10 +361,24 @@ void effectBlinkText() {
     }
 }
 
+Spectrum createMatrixSpectrum() {
+    uint32_t matrixColors[] = {
+        black,
+        interpolate(black, green, .02),
+        interpolate(black, green, .1),
+        green,
+        termColor
+    };
+    return createSpectrum(matrixColors, 10);
+}
+
 void effectMatrix() {
-    int nGamut = matrixSpectrum.nGamut();
-    uint32_t c1 = matrixSpectrum.gamut()[nGamut - 1];
-    uint32_t c2 = matrixSpectrum.gamut()[nGamut - 2];
+    Spectrum s = createMatrixSpectrum();
+    int nGamut = s.size;
+    uint32_t *gamut = s.gamut;
+
+    uint32_t c1 = gamut[nGamut - 1];
+    uint32_t c2 = gamut[nGamut - 2];
     for (int x = 0; x < 12; x++) {
         if (random(20) == 0) {
             setPixel(x, 11, c1);
@@ -403,25 +395,45 @@ void effectMatrix() {
     }
     if (isTimeout()) {
         if (random(2) == 0) {
-            left(matrixSpectrum.gamut()[nGamut - 1]);
+            left(gamut[nGamut - 1]);
         }
         else {
-            right(matrixSpectrum.gamut()[nGamut - 1]);
+            right(gamut[nGamut - 1]);
         }
         uint16_t t = (uint16_t) exponential(1000.);
         setTimeout(t);
     }
     strip.show();
-    rotate(matrixSpectrum, false);
+    rotate(s, false);
     delay(50);
+
+    destroySpectrum(s);
+}
+
+Spectrum createPlanckSpectrum(int size) {
+    uint32_t planckColors[] = {
+        black,
+        interpolate(black, red, .1),
+        interpolate(black, red, .2),
+        interpolate(black, red, .5),
+        interpolate(green, red, 5 / 6.), // magenta
+        interpolate(red, green, .5),     // yellow
+        0x00ffffff,                      // white
+        termColor
+    };
+    return createSpectrum(planckColors, size);
 }
 
 void effectFireworks() {
-    int nGamut = planckSpectrumShort.nGamut();
-    uint32_t *gamut = planckSpectrumShort.gamut();
 
-    uint32_t first = gamut[nGamut - 1];
-    uint32_t second = gamut[nGamut - 2];
+    int nShort = 40;
+    Spectrum sShort = createPlanckSpectrum(nShort);
+
+    int nLong = 100;
+    Spectrum sLong = createPlanckSpectrum(nLong);
+
+    uint32_t first = sShort.gamut[nShort - 1];
+    uint32_t second = sShort.gamut[nShort - 2];
     for (int x = 0; x < 12; x++) {
         for (int y = 11; y > 0; y--) {
             int i = midLogicToIndex(x, y);
@@ -431,14 +443,11 @@ void effectFireworks() {
             }
         }
     }
-    if (isTimeout()) {
-        nGamut = planckSpectrum.nGamut();
-        gamut = planckSpectrum.gamut();
-        top(gamut[nGamut - 1]);
 
-        nGamut = planckSpectrumShort.nGamut();
-        gamut = planckSpectrumShort.gamut();
-        uint32_t c = gamut[nGamut - 1];
+    if (isTimeout()) {
+        top(sLong.gamut[nLong - 1]);
+
+        uint32_t c = sShort.gamut[nShort - 1];
         for (int x = 0; x < 12; x++) {
             setPixel(x, 11, c);
         }
@@ -446,8 +455,12 @@ void effectFireworks() {
         setTimeout(t);
     }
     strip.show();
-    rotateMid(planckSpectrumShort, false);
-    rotateTop(planckSpectrum, false);
+
+    rotateMid(sShort, false);
+    rotateTop(sLong, false);
+
+    destroySpectrum(sShort);
+    destroySpectrum(sLong);
 }
 
 void effectRedWhiteBlue() {
@@ -492,36 +505,6 @@ void effectRanxels() {
         setPixel(i, pixelDimExp(c, random(7)));
     }
     strip.show();
-}
-
-void effectSwipeFadingPlanckRanxels() {
-    uint32_t *gamut = planckSpectrum.gamut();
-    int nGamut = planckSpectrum.nGamut();
-    uint32_t first = gamut[nGamut - 1];
-    uint32_t last = gamut[0];
-    for (int x = 0; x < 12; x++) {
-        vertical(x, first);
-        if (x > 0) {
-            vertical(x - 1, black);
-            for (int y = 0; y < 12; y++) {
-                if (random(2) == 0) {
-                    setPixel(x - 1, y, first);
-                }
-            }
-        }
-        rotate(planckSpectrum, false);
-        strip.show();
-    }
-    vertical(11, last);
-    for (int y = 0; y < 12; y++) {
-        if (random(2) == 0) {
-            setPixel(11, y, first);
-        }
-    }
-    for (int n = 0; n < 200; n++) {
-        rotate(planckSpectrum, false);
-        strip.show();
-    }
 }
 
 void effectMouth() {
@@ -634,13 +617,15 @@ void effectFadingRanxels() {
 }
 
 void effectPlanckFlash() {
-    uint32_t *gamut = planckSpectrum.gamut();
-    int nGamut = planckSpectrum.nGamut();
-    for (int n = nGamut - 1; n >= 0; n--) {
+    int size = 100;
+    Spectrum s = createPlanckSpectrum(100);
+    uint32_t *gamut = s.gamut;
+    for (int n = size - 1; n >= 0; n--) {
         solid(gamut[n]);
         strip.show();
     }
     delay(1000);
+    destroySpectrum(s);
 }
 
 void effectFlash() {
