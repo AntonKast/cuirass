@@ -21,8 +21,6 @@ void setup() {
     strip.show();
 }
 
-int timescale = 20; // first pass is accelerated
-
 void fadeToBlack() {
     for (int i = 0; i < 100; i++) {
         dimFloat(.95);
@@ -31,7 +29,7 @@ void fadeToBlack() {
 }
 
 void repeat(void f(), int n) {
-    for (int i = 0; i <= n / timescale; i++) {
+    for (int i = 0; i <= n; i++) {
         f();
     }
     fadeToBlack();
@@ -42,7 +40,7 @@ void loop() {
     repeat(effectWave, 200);
     repeat(effectFireworks, 3000);
     repeat(effectFadingRanxels, 4800);
-    effectPolkaDots(timescale < 10 ? 10 / timescale : 1); fadeToBlack();
+    effectPolkaDots(10); fadeToBlack();
     repeat(effectMatrix, 1600);
     repeat(effectCrawlTextFear, 10);
     repeat(effectMouth, 430);
@@ -57,9 +55,7 @@ void loop() {
     repeat(effectFlash, 13);
     repeat(effectChecker, 240);
     repeat(effectFlare, 4800);
-    effectRainbowFrame(8000 / timescale); fadeToBlack();
-
-    timescale = 1;  // normal speed after first pass
+    effectRainbowFrame(8000); fadeToBlack();
 
 // for fun
 //    repeat(effectIrisLolaText, 20);
