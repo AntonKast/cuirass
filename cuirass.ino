@@ -36,7 +36,6 @@ void repeat(void f(), int n) {
 }
 
 void loop() {
-
     repeat(effectWave, 200);
     repeat(effectFireworks, 3000);
     repeat(effectFadingRanxels, 4800);
@@ -50,7 +49,7 @@ void loop() {
     repeat(effectRainbow, 15);
     repeat(effectCrazyColors, 480);
     repeat(effectRedWhiteBlue, 3000);
-    repeat(effectSeizure, 1200);
+    effectSeizureProgressive(); fadeToBlack();
     repeat(effectCrawlTextLove, 10);
     repeat(effectFlash, 13);
     repeat(effectChecker, 240);
@@ -623,6 +622,33 @@ void effectSeizure() {
         setPixel(i, white);
     }
     strip.show();
+}
+
+void effectSeizureProgressive() {
+    uint32_t gray2 = graylevel(2);
+    int nReps = 20;
+    for (int p = 2; p <= 24; p++) {
+        for (int n = 0; n < nReps; n++) {
+            for (int o = 0; o < p; o++) {
+                solid(black);
+                for (int i = o; i < numPixels; i += p) {
+                    setPixel(i, gray2);
+                }
+                strip.show();
+            }
+        }
+    }
+    for (int p = 23; p >= 2; p--) {
+        for (int n = 0; n < nReps; n++) {
+            for (int o = 0; o < p; o++) {
+                solid(black);
+                for (int i = o; i < numPixels; i += p) {
+                    setPixel(i, gray2);
+                }
+                strip.show();
+            }
+        }
+    }
 }
 
 void effectChecker() {
