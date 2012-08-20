@@ -63,12 +63,65 @@ void loop() {
     repeat(effectChecker, 240);
     repeat(effectFlare, 4800);
     repeat(effectRainbowFrame, 1);
-
-// for fun
-//    repeat(effectIrisLolaText, 20);
+    repeat(effectIrisLolaText, 10);
+    repeat(effectSkyrocket, 12);
 }
 
 // effects
+
+void effectSkyrocket() {
+    float r = 1.;
+    int x = random(12);
+    float y = random(12);
+    for (float h = 0.; h < y; h+= .1) {
+        solid(black);
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                float dx = x - i;
+                float dy = h - j;
+                float d = sqrt(dx * dx + dy * dy);
+                uint32_t c = interpolate(white, black, constrain(d / r, 0., 1.));
+                setPixel(i, j, c);
+            }
+        }
+        strip.show();
+    }
+    int nGamut = 100;
+    Spectrum s = createPlanckSpectrum(nGamut);
+    uint32_t *gamut = s.gamut;
+    uint32_t max = gamut[nGamut - 1];
+    for (r = 1.; r <= 8.; r += 1.) {
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                float dx = x - i;
+                float dy = y - j;
+                float d = sqrt(dx * dx + dy * dy);
+                uint32_t c = interpolate(max, black, constrain(d / r, 0., 1.));
+                setPixel(i, j, c);
+            }
+        }
+        strip.show();
+    }
+    solid(max);
+    for (r = 1.; r <= 10.; r += .5) {
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                float dx = x - i;
+                float dy = y - j;
+                float d = sqrt(dx * dx + dy * dy);
+                if (d < r) {
+                    rotate(s, midLogicToIndex(i, j), false);
+                }
+            }
+        }
+        strip.show();
+    }
+    for (int n = 0; n < nGamut; n++) {
+        rotate(s, false);
+        strip.show();
+    }
+    destroySpectrum(s);
+}
 
 void effectWave() {
     for (float p = 0.; p < 6.28; p += .4) {
