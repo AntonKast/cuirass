@@ -37,7 +37,7 @@ void repeat(void effect(), int n) {
         initSkip--;
         return;
     }
-    for (int i = 0; i <= n; i++) {
+    for (int i = 0; i < n; i++) {
         effect();
     }
     fadeToBlack();
@@ -671,19 +671,6 @@ void effectMouth() {
     topMidRing(c);
     horizontal(4, c);
     horizontal(7, c);
-    strip.show();
-}
-
-void effectSeizure() {
-    solid(black);
-    for (int i = 0; i < numPixels; i += 2) {
-        setPixel(i, white);
-    }
-    strip.show();
-    solid(black);
-    for (int i = 1; i < numPixels; i += 2) {
-        setPixel(i, white);
-    }
     strip.show();
 }
 
