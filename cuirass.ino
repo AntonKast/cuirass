@@ -16,9 +16,13 @@ Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
 // main loop
 
+byte initSkip;
+
 void setup() {    
     strip.begin();
     strip.show();
+    randomSeed(analogRead(0));
+    initSkip = random(256);
 }
 
 void fadeToBlack() {
@@ -28,9 +32,13 @@ void fadeToBlack() {
     }
 }
 
-void repeat(void f(), int n) {
+void repeat(void effect(), int n) {
+    if (initSkip > 0) {
+        initSkip--;
+        return;
+    }
     for (int i = 0; i <= n; i++) {
-        f();
+        effect();
     }
     fadeToBlack();
 }
@@ -39,7 +47,7 @@ void loop() {
     repeat(effectWave, 200);
     repeat(effectFireworks, 3000);
     repeat(effectFadingRanxels, 4800);
-    effectPolkaDots(10); fadeToBlack();
+    repeat(effectPolkaDots, 1);
     repeat(effectMatrix, 1600);
     repeat(effectCrawlTextFear, 10);
     repeat(effectMouth, 430);
@@ -49,12 +57,12 @@ void loop() {
     repeat(effectRainbow, 15);
     repeat(effectCrazyColors, 480);
     repeat(effectRedWhiteBlue, 3000);
-    effectSeizureProgressive(); fadeToBlack();
+    repeat(effectSeizureProgressive, 1);
     repeat(effectCrawlTextLove, 10);
     repeat(effectFlash, 13);
     repeat(effectChecker, 240);
     repeat(effectFlare, 4800);
-    effectRainbowFrame(8000); fadeToBlack();
+    repeat(effectRainbowFrame, 1);
 
 // for fun
 //    repeat(effectIrisLolaText, 20);
@@ -113,9 +121,10 @@ void effectFire() {
     }
 }
 
-void effectPolkaDots(int nReps) {
+void effectPolkaDots() {
     uint32_t back, front;
-
+    int nReps = 10;
+    
     back = interpolate(black, red, .25);
     front = white;
     for (int n = 0; n < 16; n++) {
@@ -184,7 +193,7 @@ Spectrum createRainbowSpectrum() {
     return createSpectrum(rainbowColors, 40);
 }
 
-void effectRainbowFrame(int steps) {
+void effectRainbowFrame() {
     byte aText[] = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
@@ -235,6 +244,7 @@ void effectRainbowFrame(int steps) {
     }
     uint32_t gray2 = graylevel(2);
 
+    int steps = 8000;
     for (int m = 0; m < steps; m++) {
 
         for (int x = 0; x < 12; x++) {
@@ -638,7 +648,7 @@ void effectSeizureProgressive() {
             }
         }
     }
-    for (int p = 23; p >= 2; p--) {
+    for (int p = 12; p >= 2; p--) {
         for (int n = 0; n < nReps / p; n++) {
             for (int o = 0; o < p; o++) {
                 solid(black);
