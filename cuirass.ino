@@ -626,9 +626,9 @@ void effectSeizure() {
 
 void effectSeizureProgressive() {
     uint32_t gray2 = graylevel(2);
-    int nReps = 20;
-    for (int p = 2; p <= 24; p++) {
-        for (int n = 0; n < nReps; n++) {
+    int nReps = 128;
+    for (int p = 2; p <= 12; p++) {
+        for (int n = 0; n < nReps / p; n++) {
             for (int o = 0; o < p; o++) {
                 solid(black);
                 for (int i = o; i < numPixels; i += p) {
@@ -639,7 +639,7 @@ void effectSeizureProgressive() {
         }
     }
     for (int p = 23; p >= 2; p--) {
-        for (int n = 0; n < nReps; n++) {
+        for (int n = 0; n < nReps / p; n++) {
             for (int o = 0; o < p; o++) {
                 solid(black);
                 for (int i = o; i < numPixels; i += p) {
