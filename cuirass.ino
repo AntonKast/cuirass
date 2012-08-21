@@ -7,10 +7,10 @@
 
 // initialize strip
 
-int dataPin  = 2;    // yellow wire
-int clockPin = 3;    // green wire
+byte dataPin  = 2;    // yellow wire
+byte clockPin = 3;    // green wire
 
-int numPixels = 210;
+byte numPixels = 210;
 
 Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
@@ -26,7 +26,7 @@ void setup() {
 }
 
 void fadeToBlack() {
-    for (int i = 0; i < 100; i++) {
+    for (byte i = 0; i < 100; i++) {
         dimFloat(.95);
         strip.show();
     }
@@ -45,7 +45,7 @@ void repeat(void effect(), int n) {
 
 void loop() {
     repeat(effectWave, 200);
-    repeat(effectFireworks, 3000);
+    repeat(effectBurst, 3000);
     repeat(effectFadingRanxels, 4800);
     repeat(effectPolkaDots, 1);
     repeat(effectMatrix, 1600);
@@ -59,24 +59,24 @@ void loop() {
     repeat(effectRedWhiteBlue, 3000);
     repeat(effectSeizureProgressive, 1);
     repeat(effectCrawlTextLove, 10);
-    repeat(effectFlash, 13);
+    repeat(effectFlare, 13);
     repeat(effectChecker, 240);
-    repeat(effectFlare, 4800);
+    repeat(effectFlicker, 4800);
     repeat(effectRainbowFrame, 1);
     repeat(effectIrisLolaText, 10);
-    repeat(effectSkyrocket, 12);
+    repeat(effectFireworks, 12);
 }
 
 // effects
 
-void effectSkyrocket() {
+void effectFireworks() {
     float r = 1.;
-    int x = random(12);
-    float y = random(12);
+    byte x = random(12);
+    byte y = random(12);
     for (float h = 0.; h < y; h+= .1) {
         solid(black);
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
+        for (byte i = 0; i < 12; i++) {
+            for (byte j = 0; j < 12; j++) {
                 float dx = x - i;
                 float dy = h - j;
                 float d = sqrt(dx * dx + dy * dy);
@@ -86,13 +86,13 @@ void effectSkyrocket() {
         }
         strip.show();
     }
-    int nGamut = 100;
+    byte nGamut = 100;
     Spectrum s = createPlanckSpectrum(nGamut);
     uint32_t *gamut = s.gamut;
     uint32_t max = gamut[nGamut - 1];
     for (r = 1.; r <= 8.; r += 1.) {
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
+        for (byte i = 0; i < 12; i++) {
+            for (byte j = 0; j < 12; j++) {
                 float dx = x - i;
                 float dy = y - j;
                 float d = sqrt(dx * dx + dy * dy);
@@ -104,8 +104,8 @@ void effectSkyrocket() {
     }
     solid(max);
     for (r = 1.; r <= 10.; r += .5) {
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
+        for (byte i = 0; i < 12; i++) {
+            for (byte j = 0; j < 12; j++) {
                 float dx = x - i;
                 float dy = y - j;
                 float d = sqrt(dx * dx + dy * dy);
@@ -116,7 +116,7 @@ void effectSkyrocket() {
         }
         strip.show();
     }
-    for (int n = 0; n < nGamut; n++) {
+    for (byte n = 0; n < nGamut; n++) {
         rotate(s, false);
         strip.show();
     }
@@ -513,7 +513,7 @@ void effectMatrix() {
     destroySpectrum(s);
 }
 
-Spectrum createPlanckSpectrum(int size) {
+Spectrum createPlanckSpectrum(byte size) {
     uint32_t planckColors[] = {
         black,
         interpolate(black, red, .1),
@@ -527,19 +527,19 @@ Spectrum createPlanckSpectrum(int size) {
     return createSpectrum(planckColors, size);
 }
 
-void effectFireworks() {
+void effectBurst() {
 
-    int nShort = 40;
+    byte nShort = 40;
     Spectrum sShort = createPlanckSpectrum(nShort);
 
-    int nLong = 100;
+    byte nLong = 100;
     Spectrum sLong = createPlanckSpectrum(nLong);
 
     uint32_t first = sShort.gamut[nShort - 1];
     uint32_t second = sShort.gamut[nShort - 2];
-    for (int x = 0; x < 12; x++) {
-        for (int y = 11; y > 0; y--) {
-            int i = midLogicToIndex(x, y);
+    for (byte x = 0; x < 12; x++) {
+        for (byte y = 11; y > 0; y--) {
+            byte i = midLogicToIndex(x, y);
             uint32_t c = getPixel(i);
             if (c == second) {
                 setPixel(x, y - 1, first);
@@ -551,7 +551,7 @@ void effectFireworks() {
         top(sLong.gamut[nLong - 1]);
 
         uint32_t c = sShort.gamut[nShort - 1];
-        for (int x = 0; x < 12; x++) {
+        for (byte x = 0; x < 12; x++) {
             setPixel(x, 11, c);
         }
         uint16_t t = (uint16_t) exponential(5000.);
@@ -717,7 +717,7 @@ void effectChecker() {
     delay(200);
 }
 
-void effectFlare() {
+void effectFlicker() {
     if (isTimeout()) {
         solid(color(255, 32, 0));
         uint16_t t = (uint16_t) exponential(1000.);
@@ -733,7 +733,7 @@ void effectFadingRanxels() {
     strip.show();
 }
 
-void effectFlash() {
+void effectFlare() {
     delay(exponential(3000.));
     solid(white);
     strip.show();
