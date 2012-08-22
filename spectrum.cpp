@@ -4,6 +4,12 @@
 #include "util.h"
 #include "spectrum.h"
 
+#define MAX_GAMUT 100
+
+// global storage, avoids overhead and fragmentation of malloc
+// (only one Spectrum instance at a time)
+uint32_t gamut[MAX_GAMUT];
+
 uint32_t colorAt(uint32_t *colors, int nColors, float index) {
     if (index >= 1.) {
         return colors[nColors - 1];
@@ -29,7 +35,6 @@ Spectrum createSpectrum(uint32_t *colors, int size) {
     while (colors[nColors] != termColor) {
         nColors++;
     }
-    uint32_t *gamut = (uint32_t *) calloc(size, 4);
     for (int i = 0; i < size; i++) {
         gamut[i] = colorAt(colors, nColors, i / (float) (size - 1));
     }
@@ -66,7 +71,4 @@ uint32_t nextColor(Spectrum s, uint32_t c, bool wrap) {
 }
 
 void destroySpectrum(Spectrum s) {
-    if (s.gamut != NULL) {
-        free(s.gamut);
-    }
 }

@@ -45,7 +45,7 @@ void repeat(void effect(), int n) {
 
 void loop() {
     repeat(effectWave, 200);
-    repeat(effectBurst, 3000);
+//    repeat(effectBurst, 3000);
     repeat(effectFadingRanxels, 4800);
     repeat(effectPolkaDots, 1);
     repeat(effectMatrix, 1600);
@@ -248,7 +248,6 @@ Spectrum createRainbowSpectrum() {
 
 void effectRainbowFrame() {
     byte aText[] = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
@@ -256,12 +255,9 @@ void effectRainbowFrame() {
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
 
     byte kText[] = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
         0, 0, 0, 1, 0, 1, 0, 0, 0, 0,
@@ -269,28 +265,26 @@ void effectRainbowFrame() {
         0, 0, 0, 1, 0, 1, 0, 0, 0, 0,
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
         0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
     Spectrum s = createRainbowSpectrum();
     uint32_t *gamut = s.gamut;
 
     solid(black);
-    int n = 0;
-    for (int x = 0; x < 12; x++) {
+    byte n = 0;
+    for (byte x = 0; x < 12; x++) {
         setPixel(x, 2, gamut[n++]);
     }
-    for (int y = 3; y < 12; y++) {
+    for (byte y = 3; y < 12; y++) {
         setPixel(11, y, gamut[n++]);
     }
-    for (int x = 10; x >= 0; x--) {
+    for (byte x = 10; x < 255; x--) {
         setPixel(x, 11, gamut[n++]);
     }
-    for (int y = 10; y > 2; y--) {
+    for (byte y = 10; y > 2; y--) {
         setPixel(0, y, gamut[n++]);
     }
     n = 0;
-    for (int i = 0; i < 16; i++) {
+    for (byte i = 0; i < 16; i++) {
         uint8_t *pair = &outerRingPairs[2 * i];
         setPixel(leftLogicToIndex(pair[0], pair[1]), gamut[n++]);
         setPixel(rightLogicToIndex(pair[0], pair[1]), gamut[n++]);
@@ -320,11 +314,11 @@ void effectRainbowFrame() {
         bool toggle = m % 2 == 0;
         bool ak = (m / 20) % 2 == 0;
 
-        for (int x = 1; x < 11; x++) {
-            for (int y = 3; y < 11; y++) {
+        for (byte x = 1; x < 11; x++) {
+            for (byte y = 4; y < 10; y++) {
                 bool on = ak ?
-                    (aText[10 * (10 - y) + (x - 1)] != 0) : 
-                    (kText[10 * (10 - y) + (x - 1)] != 0);
+                    (aText[10 * (9 - y) + (x - 1)] != 0) : 
+                    (kText[10 * (9 - y) + (x - 1)] != 0);
                 setPixel(x, y, on & toggle ? gray2 : black);
             }
         }
