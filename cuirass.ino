@@ -315,7 +315,7 @@ void effectRainbowFrame() {
         bool ak = (m / 20) % 2 == 0;
 
         for (byte x = 1; x < 11; x++) {
-            for (byte y = 4; y < 10; y++) {
+            for (byte y = 3; y < 10; y++) {
                 bool on = ak ?
                     (aText[10 * (9 - y) + (x - 1)] != 0) : 
                     (kText[10 * (9 - y) + (x - 1)] != 0);
