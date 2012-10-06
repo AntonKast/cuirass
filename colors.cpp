@@ -5,7 +5,7 @@ uint32_t color(byte r, byte g, byte b) {
 }
 
 uint32_t gray(byte g) {
-    return color(g, g, g);
+    return color(g >> grayshift, g >> grayshift, g >> grayshift);
 }
 
 uint32_t graylevel(int l) {
@@ -13,7 +13,7 @@ uint32_t graylevel(int l) {
         return white;
     }
     if (l <= 8) {
-        return 0x01010100 >> l;
+        return 0x01010100 >> (l + grayshift);
     }
     return black;
 }

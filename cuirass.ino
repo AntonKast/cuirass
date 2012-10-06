@@ -515,7 +515,7 @@ Spectrum createPlanckSpectrum(byte size) {
         interpolate(black, red, .5),
         interpolate(green, red, 5 / 6.), // magenta
         interpolate(red, green, .5),     // yellow
-        0x00ffffff,                      // white
+        white,
         termColor
     };
     return createSpectrum(planckColors, size);
@@ -713,7 +713,9 @@ void effectChecker() {
 
 void effectFlicker() {
     if (isTimeout()) {
-        solid(color(255, 32, 0));
+        // quarter brightness
+        // solid(color(255, 32, 0));
+        solid(pixelDim(pixelDim(color(255, 32, 0))));
         uint16_t t = (uint16_t) exponential(1000.);
         setTimeout(t);
     }
@@ -748,7 +750,9 @@ void effectFlare() {
 void effectRainbow() {
     for (int j = 0; j < 256; j++) {
         for (int i = 0; i < strip.numPixels(); i++) {
-            strip.setPixelColor(i, wheel((i + j) % 255));
+            // strip.setPixelColor(i, wheel((i + j) % 255));
+            // quarter brightness
+            strip.setPixelColor(i, pixelDim(pixelDim(wheel((i + j) % 255))));
         }
         strip.show();
     }
