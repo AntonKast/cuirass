@@ -1,11 +1,17 @@
 #include "colors.h"
 
+uint32_t white = 0x00FFFFFF;
+uint32_t red   = 0x00FF0000;
+uint32_t green = 0x0000FF00;
+uint32_t blue  = 0x000000FF;
+uint32_t black = 0x00000000;
+
 uint32_t color(byte r, byte g, byte b) {
     return ((((uint32_t) r << 8) | g) << 8) | b;
 }
 
 uint32_t gray(byte g) {
-    return color(g >> grayshift, g >> grayshift, g >> grayshift);
+    return color(g, g, g);
 }
 
 uint32_t graylevel(int l) {
@@ -13,7 +19,7 @@ uint32_t graylevel(int l) {
         return white;
     }
     if (l <= 8) {
-        return 0x01010100 >> (l + grayshift);
+        return 0x01010100 >> l;
     }
     return black;
 }

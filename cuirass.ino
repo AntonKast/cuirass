@@ -14,15 +14,27 @@ byte numPixels = 210;
 
 Adafruit_WS2801 strip = Adafruit_WS2801(numPixels, dataPin, clockPin);
 
-// main loop
-
 byte initSkip;
+
+int nshift = 0;
+
+void updateShift() {
+    nshift = analogRead(0) >> 7;
+}
+
+uint32_t shift(uint32_t c) {
+    int r = c >> 16 & 0xFF;
+    int g = c >>  8 & 0xFF;
+    int b = c >>  0 & 0xFF;
+    return color(r >> nshift, g >> nshift, b >> nshift);
+}
 
 void setup() {    
     strip.begin();
     strip.show();
     randomSeed(analogRead(0));
     initSkip = random(256);
+    updateShift();
 }
 
 void fadeToBlack() {
@@ -45,7 +57,7 @@ void repeat(void effect(), int n) {
 
 void loop() {
     repeat(effectWave, 200);
-//    repeat(effectBurst, 3000);
+    repeat(effectBurst, 3000);
     repeat(effectFadingRanxels, 4800);
     repeat(effectPolkaDots, 1);
     repeat(effectMatrix, 1600);
@@ -123,39 +135,41 @@ void effectFireworks() {
     destroySpectrum(s);
 }
 
+// shifted
 void effectWave() {
     for (float p = 0.; p < 6.28; p += .4) {
+        updateShift();
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {
                 float r = 6.28 * sqrt(sq(i - 5.5) + sq(j - 5.5)) / 5.5;
-                uint8_t level = constrain(64 * (1 + sin(r - p)), 0, 255);
-                uint32_t c = gray(level);
+                uint8_t level = constrain(128 * (1 + sin(r - p)), 0, 255);
+                uint32_t c = shift(gray(level));
                 setPixel(i, j, c);
             }
         }
         float r = p;
-        uint8_t level = constrain(64 * (1 + sin(r)), 0, 255);
-        uint32_t c = gray(level);
+        uint8_t level = constrain(128 * (1 + sin(r)), 0, 255);
+        uint32_t c = shift(gray(level));
         topCenter(c);
 
         r -= 3.14 / 8 ;
-        level = constrain(64 * (1 + sin(r)), 0, 255);
-        c = gray(level);
+        level = constrain(128 * (1 + sin(r)), 0, 255);
+        c = shift(gray(level));
         topInnerRing(c);
 
         r -= 3.14 / 8 ;
-        level = constrain(64 * (1 + sin(r)), 0, 255);
-        c = gray(level);
+        level = constrain(128 * (1 + sin(r)), 0, 255);
+        c = shift(gray(level));
         topMidRing(c);
 
         r -= 3.14 / 8 ;
-        level = constrain(64 * (1 + sin(r)), 0, 255);
-        c = gray(level);
+        level = constrain(128 * (1 + sin(r)), 0, 255);
+        c = shift(gray(level));
         topOuterRing(c);
 
         r -= 3.14 / 8 ;
-        level = constrain(64 * (1 + sin(r)), 0, 255);
-        c = gray(level);
+        level = constrain(128 * (1 + sin(r)), 0, 255);
+        c = shift(gray(level));
         topEdge(c);
 
         strip.show();
@@ -560,38 +574,48 @@ void effectBurst() {
     destroySpectrum(sLong);
 }
 
+// shifted
 void effectRedWhiteBlue() {
-    int il = random(LEFT_END - LEFT_START + 1) + LEFT_START;
-    int ir = random(RIGHT_END - RIGHT_START + 1) + RIGHT_START;
-    strip.setPixelColor(il, white);
-    strip.setPixelColor(ir, white);
+    updateShift();
+
+    uint32_t r = shift(red);
+    uint32_t w = shift(white);
+    uint32_t b = shift(blue);
 
     for (int i = LEFT_START; i <= LEFT_END; i++) {
         uint32_t c = getPixel(i);
-        if (c != blue) {
-            c = interpolate(c, blue, .1);
+        if (c != b) {
+            c = interpolate(c, b, .1);
             setPixel(i, c);
         }
     }
     for (int i = RIGHT_START; i <= RIGHT_END; i++) {
         uint32_t c = getPixel(i);
-        if (c != blue) {
-            c = interpolate(c, blue, .1);
+        if (c != b) {
+            c = interpolate(c, b, .1);
             setPixel(i, c);
         }
     }
-    horizontal(0, red);
-    horizontal(1, graylevel(2));
-    horizontal(2, red);
-    horizontal(3, graylevel(2));
-    horizontal(4, red);
-    horizontal(5, graylevel(2));
-    horizontal(6, red);
-    horizontal(7, graylevel(2));
-    horizontal(8, red);
-    horizontal(9, graylevel(2));
-    horizontal(10, red);
-    horizontal(11, graylevel(2));
+    int il = random(LEFT_END - LEFT_START + 1) + LEFT_START;
+    int ir = random(RIGHT_END - RIGHT_START + 1) + RIGHT_START;
+    strip.setPixelColor(il, w);
+    strip.setPixelColor(ir, w);
+
+    uint32_t g = shift(graylevel(2));
+    g = max(g, gray(1));
+
+    horizontal( 0, r);
+    horizontal( 1, g);
+    horizontal( 2, r);
+    horizontal( 3, g);
+    horizontal( 4, r);
+    horizontal( 5, g);
+    horizontal( 6, r);
+    horizontal( 7, g);
+    horizontal( 8, r);
+    horizontal( 9, g);
+    horizontal(10, r);
+    horizontal(11, g);
 
     strip.show();
 }
@@ -713,9 +737,7 @@ void effectChecker() {
 
 void effectFlicker() {
     if (isTimeout()) {
-        // quarter brightness
-        // solid(color(255, 32, 0));
-        solid(pixelDim(pixelDim(color(255, 32, 0))));
+        solid(color(255, 32, 0));
         uint16_t t = (uint16_t) exponential(1000.);
         setTimeout(t);
     }
@@ -747,12 +769,12 @@ void effectFlare() {
     }
 }
 
+// shifted
 void effectRainbow() {
     for (int j = 0; j < 256; j++) {
+        updateShift();
         for (int i = 0; i < strip.numPixels(); i++) {
-            // strip.setPixelColor(i, wheel((i + j) % 255));
-            // quarter brightness
-            strip.setPixelColor(i, pixelDim(pixelDim(wheel((i + j) % 255))));
+            strip.setPixelColor(i, shift(wheel((i + j) % 255)));
         }
         strip.show();
     }
