@@ -692,11 +692,16 @@ void effectMouth() {
     strip.show();
 }
 
+// shifted
 void effectSeizureProgressive() {
-    uint32_t gray2 = graylevel(2);
     int nReps = 128;
     for (int p = 2; p <= 12; p++) {
         for (int n = 0; n < nReps / p; n++) {
+            updateShift();
+            uint32_t gray2 = shift(graylevel(2));
+            if (gray2 == 0) {
+                gray2 = gray(0x01);
+            }
             for (int o = 0; o < p; o++) {
                 solid(black);
                 for (int i = o; i < numPixels; i += p) {
@@ -708,6 +713,11 @@ void effectSeizureProgressive() {
     }
     for (int p = 12; p >= 2; p--) {
         for (int n = 0; n < nReps / p; n++) {
+            updateShift();
+            uint32_t gray2 = shift(graylevel(2));
+            if (gray2 == 0) {
+                gray2 = gray(0x01);
+            }
             for (int o = 0; o < p; o++) {
                 solid(black);
                 for (int i = o; i < numPixels; i += p) {
@@ -719,15 +729,25 @@ void effectSeizureProgressive() {
     }
 }
 
+// shifted
 void effectChecker() {
-    uint32_t gray2 = graylevel(2);
+    updateShift();
     solid(black);
+    uint32_t gray2 = shift(graylevel(2));
+    if (gray2 == 0) {
+        gray2 = gray(0x01);
+    }
     for (int i = 0; i < numPixels; i += 2) {
         setPixel(i, gray2);
     }
     strip.show();
     delay(200);
+    updateShift();
     solid(black);
+    gray2 = shift(graylevel(2));
+    if (gray2 == 0) {
+        gray2 = gray(0x01);
+    }
     for (int i = 1; i < numPixels; i += 2) {
         setPixel(i, gray2);
     }
@@ -745,9 +765,10 @@ void effectFlicker() {
     strip.show();
 }
 
+// shifted
 void effectFadingRanxels() {
-    setPixel(random(210), blue);
     dimFloat(.99);
+    setPixel(random(210), shift(blue));
     strip.show();
 }
 
