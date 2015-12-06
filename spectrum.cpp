@@ -42,6 +42,17 @@ Spectrum createSpectrum(uint32_t *colors, int size) {
     return s;
 }
 
+Spectrum ensureUnique(Spectrum s) {
+    int i = 0;
+    for (int j = 1; j < s.size; j++) {
+        if (s.gamut[i] != s.gamut[j]) {
+            s.gamut[++i] = s.gamut[j];
+        }
+    }
+    s.size = (s.gamut[i] != s.gamut[0]) ? (i + 1) : i;
+    return s;
+}
+
 uint32_t prevColor(Spectrum s, uint32_t c, bool wrap) {
     uint32_t *gamut = s.gamut;
     int size = s.size;

@@ -12,6 +12,8 @@ typedef struct {
 
 Spectrum createSpectrum(uint32_t *colors, int size);
 
+Spectrum ensureUnique(Spectrum s);
+
 uint32_t nextColor(Spectrum s, uint32_t c, bool wrap);
 
 uint32_t prevColor(Spectrum s, uint32_t c, bool wrap);
